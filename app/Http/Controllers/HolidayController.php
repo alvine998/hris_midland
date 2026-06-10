@@ -26,6 +26,7 @@ class HolidayController extends Controller
     {
         $holiday = Holiday::create($this->validated($request));
         $service->recalculateApprovedOverlapping($holiday->start_date, $holiday->end_date);
+        $this->logCreated($holiday, 'Leave Management');
 
         return back()->with('success', 'Holiday created successfully.');
     }
@@ -34,10 +35,12 @@ class HolidayController extends Controller
     {
         $oldStart = $holiday->start_date;
         $oldEnd = $holiday->end_date;
+        $oldData = $holiday->attributesToArray();
 
         $holiday->update($this->validated($request));
         $service->recalculateApprovedOverlapping($oldStart, $oldEnd);
         $service->recalculateApprovedOverlapping($holiday->start_date, $holiday->end_date);
+        $this->logUpdated($holiday, $oldData, 'Leave Management');
 
         return back()->with('success', 'Holiday updated successfully.');
     }
@@ -46,8 +49,10 @@ class HolidayController extends Controller
     {
         $start = $holiday->start_date;
         $end = $holiday->end_date;
+        $oldData = $holiday->attributesToArray();
         $holiday->delete();
         $service->recalculateApprovedOverlapping($start, $end);
+        $this->logDeleted($holiday, $oldData, 'Leave Management');
 
         return back()->with('success', 'Holiday deleted successfully.');
     }

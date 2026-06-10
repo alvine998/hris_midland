@@ -22,21 +22,26 @@ class ShiftController extends Controller
 
     public function store(StoreShiftRequest $request): RedirectResponse
     {
-        Shift::create($request->validated());
+        $shift = Shift::create($request->validated());
+        $this->logCreated($shift);
 
         return back()->with('success', 'Shift created successfully.');
     }
 
     public function update(StoreShiftRequest $request, Shift $shift): RedirectResponse
     {
+        $oldData = $shift->attributesToArray();
         $shift->update($request->validated());
+        $this->logUpdated($shift, $oldData);
 
         return back()->with('success', 'Shift updated successfully.');
     }
 
     public function destroy(Shift $shift): RedirectResponse
     {
+        $oldData = $shift->attributesToArray();
         $shift->delete();
+        $this->logDeleted($shift, $oldData);
 
         return back()->with('success', 'Shift deleted successfully.');
     }

@@ -56,7 +56,8 @@ class AdminCrudController extends Controller
     {
         $config = $this->config($resource);
         $data = $this->validated($request, $config);
-        $config['model']::create($data);
+        $item = $config['model']::create($data);
+        $this->logCreated($item);
 
         return back()->with('success', $config['singular'].' created successfully.');
     }
@@ -65,7 +66,9 @@ class AdminCrudController extends Controller
     {
         $config = $this->config($resource);
         $item = $config['model']::findOrFail($id);
+        $oldData = $item->attributesToArray();
         $item->update($this->validated($request, $config));
+        $this->logUpdated($item, $oldData);
 
         return back()->with('success', $config['singular'].' updated successfully.');
     }
@@ -73,7 +76,10 @@ class AdminCrudController extends Controller
     public function destroy(string $resource, int $id): RedirectResponse
     {
         $config = $this->config($resource);
-        $config['model']::findOrFail($id)->delete();
+        $item = $config['model']::findOrFail($id);
+        $oldData = $item->attributesToArray();
+        $item->delete();
+        $this->logDeleted($item, $oldData);
 
         return back()->with('success', $config['singular'].' deleted successfully.');
     }

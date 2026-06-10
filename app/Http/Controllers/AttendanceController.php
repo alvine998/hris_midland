@@ -150,7 +150,7 @@ class AttendanceController extends Controller
                 continue;
             }
 
-            Attendance::create([
+            $attendance = Attendance::create([
                 'employee_id' => $employee->id,
                 'clock_in' => Carbon::parse($data['clock_in']),
                 'clock_out' => filled($data['clock_out'] ?? null) ? Carbon::parse($data['clock_out']) : null,
@@ -159,6 +159,7 @@ class AttendanceController extends Controller
                 'location_in' => $this->location($data, 'location_in'),
                 'location_out' => $this->location($data, 'location_out'),
             ]);
+            $this->logCreated($attendance);
 
             $created++;
         }

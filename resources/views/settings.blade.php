@@ -30,5 +30,17 @@
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Notification Preferences</h3>
         <p class="text-sm text-gray-500 dark:text-gray-400">Notification settings are coming soon.</p>
     </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Documentation</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Open the user guide for every HRIS module in one page.</p>
+            </div>
+            <a href="{{ route('settings.documentation') }}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors">
+                Open Documentation
+            </a>
+        </div>
+    </div>
 </div>
 @endsection

@@ -22,21 +22,26 @@ class DocumentTypeController extends Controller
 
     public function store(StoreDocumentTypeRequest $request): RedirectResponse
     {
-        DocumentType::create($request->validated());
+        $documentType = DocumentType::create($request->validated());
+        $this->logCreated($documentType);
 
         return back()->with('success', 'Document type created successfully.');
     }
 
     public function update(StoreDocumentTypeRequest $request, DocumentType $documentType): RedirectResponse
     {
+        $oldData = $documentType->attributesToArray();
         $documentType->update($request->validated());
+        $this->logUpdated($documentType, $oldData);
 
         return back()->with('success', 'Document type updated successfully.');
     }
 
     public function destroy(DocumentType $documentType): RedirectResponse
     {
+        $oldData = $documentType->attributesToArray();
         $documentType->delete();
+        $this->logDeleted($documentType, $oldData);
 
         return back()->with('success', 'Document type deleted successfully.');
     }

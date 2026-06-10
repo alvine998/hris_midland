@@ -22,21 +22,26 @@ class RelationshipController extends Controller
 
     public function store(StoreRelationshipRequest $request): RedirectResponse
     {
-        Relationship::create($request->validated());
+        $relationship = Relationship::create($request->validated());
+        $this->logCreated($relationship);
 
         return back()->with('success', 'Relationship created successfully.');
     }
 
     public function update(StoreRelationshipRequest $request, Relationship $relationship): RedirectResponse
     {
+        $oldData = $relationship->attributesToArray();
         $relationship->update($request->validated());
+        $this->logUpdated($relationship, $oldData);
 
         return back()->with('success', 'Relationship updated successfully.');
     }
 
     public function destroy(Relationship $relationship): RedirectResponse
     {
+        $oldData = $relationship->attributesToArray();
         $relationship->delete();
+        $this->logDeleted($relationship, $oldData);
 
         return back()->with('success', 'Relationship deleted successfully.');
     }

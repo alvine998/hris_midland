@@ -61,6 +61,7 @@ class ChatController extends Controller
             'room_id' => (string) $room->id,
         ]);
         $chat->load(['userOne', 'userTwo']);
+        $this->logCreated($chat, 'Communication');
 
         if ($request->expectsJson()) {
             return response()->json(['chat' => $this->chatPayload($chat), 'message' => 'Chat room created successfully.']);

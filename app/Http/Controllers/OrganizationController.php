@@ -33,21 +33,26 @@ class OrganizationController extends Controller
 
     public function storeCompany(StoreCompanyRequest $request): RedirectResponse
     {
-        Company::create($request->validated());
+        $company = Company::create($request->validated());
+        $this->logCreated($company);
 
         return redirect()->route('master-data.companies')->with('success', 'Company created successfully.');
     }
 
     public function updateCompany(StoreCompanyRequest $request, Company $company): RedirectResponse
     {
+        $oldData = $company->attributesToArray();
         $company->update($request->validated());
+        $this->logUpdated($company, $oldData);
 
         return redirect()->route('master-data.companies')->with('success', 'Company updated successfully.');
     }
 
     public function destroyCompany(Company $company): RedirectResponse
     {
+        $oldData = $company->attributesToArray();
         $company->delete();
+        $this->logDeleted($company, $oldData);
 
         return redirect()->route('master-data.companies')->with('success', 'Company deleted successfully.');
     }
@@ -63,21 +68,26 @@ class OrganizationController extends Controller
 
     public function storeWorkLocation(StoreWorkLocationRequest $request): RedirectResponse
     {
-        WorkLocation::create($request->validated());
+        $workLocation = WorkLocation::create($request->validated());
+        $this->logCreated($workLocation);
 
         return redirect()->route('master-data.work-locations')->with('success', 'Work location created successfully.');
     }
 
     public function updateWorkLocation(StoreWorkLocationRequest $request, WorkLocation $workLocation): RedirectResponse
     {
+        $oldData = $workLocation->attributesToArray();
         $workLocation->update($request->validated());
+        $this->logUpdated($workLocation, $oldData);
 
         return redirect()->route('master-data.work-locations')->with('success', 'Work location updated successfully.');
     }
 
     public function destroyWorkLocation(WorkLocation $workLocation): RedirectResponse
     {
+        $oldData = $workLocation->attributesToArray();
         $workLocation->delete();
+        $this->logDeleted($workLocation, $oldData);
 
         return redirect()->route('master-data.work-locations')->with('success', 'Work location deleted successfully.');
     }
@@ -96,21 +106,26 @@ class OrganizationController extends Controller
 
     public function storeDepartment(StoreDepartmentRequest $request): RedirectResponse
     {
-        Department::create($request->validated());
+        $department = Department::create($request->validated());
+        $this->logCreated($department);
 
         return redirect()->route('master-data.departments')->with('success', 'Department created successfully.');
     }
 
     public function updateDepartment(StoreDepartmentRequest $request, Department $department): RedirectResponse
     {
+        $oldData = $department->attributesToArray();
         $department->update($request->validated());
+        $this->logUpdated($department, $oldData);
 
         return redirect()->route('master-data.departments')->with('success', 'Department updated successfully.');
     }
 
     public function destroyDepartment(Department $department): RedirectResponse
     {
+        $oldData = $department->attributesToArray();
         $department->delete();
+        $this->logDeleted($department, $oldData);
 
         return redirect()->route('master-data.departments')->with('success', 'Department deleted successfully.');
     }
@@ -129,21 +144,26 @@ class OrganizationController extends Controller
 
     public function storeDivision(StoreDivisionRequest $request): RedirectResponse
     {
-        Division::create($request->validated());
+        $division = Division::create($request->validated());
+        $this->logCreated($division);
 
         return redirect()->route('master-data.divisions')->with('success', 'Division created successfully.');
     }
 
     public function updateDivision(StoreDivisionRequest $request, Division $division): RedirectResponse
     {
+        $oldData = $division->attributesToArray();
         $division->update($request->validated());
+        $this->logUpdated($division, $oldData);
 
         return redirect()->route('master-data.divisions')->with('success', 'Division updated successfully.');
     }
 
     public function destroyDivision(Division $division): RedirectResponse
     {
+        $oldData = $division->attributesToArray();
         $division->delete();
+        $this->logDeleted($division, $oldData);
 
         return redirect()->route('master-data.divisions')->with('success', 'Division deleted successfully.');
     }
@@ -162,21 +182,26 @@ class OrganizationController extends Controller
 
     public function storeSection(StoreSectionRequest $request): RedirectResponse
     {
-        Section::create($request->validated());
+        $section = Section::create($request->validated());
+        $this->logCreated($section);
 
         return redirect()->route('master-data.sections')->with('success', 'Section created successfully.');
     }
 
     public function updateSection(StoreSectionRequest $request, Section $section): RedirectResponse
     {
+        $oldData = $section->attributesToArray();
         $section->update($request->validated());
+        $this->logUpdated($section, $oldData);
 
         return redirect()->route('master-data.sections')->with('success', 'Section updated successfully.');
     }
 
     public function destroySection(Section $section): RedirectResponse
     {
+        $oldData = $section->attributesToArray();
         $section->delete();
+        $this->logDeleted($section, $oldData);
 
         return redirect()->route('master-data.sections')->with('success', 'Section deleted successfully.');
     }

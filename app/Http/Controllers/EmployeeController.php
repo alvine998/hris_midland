@@ -74,7 +74,8 @@ class EmployeeController extends Controller
 
     public function store(StoreEmployeeRequest $request): RedirectResponse
     {
-        Employee::create($request->validated());
+        $employee = Employee::create($request->validated());
+        $this->logCreated($employee);
 
         return redirect()->route('employees.index')->with('success', 'Employee created successfully.');
     }
@@ -134,14 +135,18 @@ class EmployeeController extends Controller
 
     public function update(StoreEmployeeRequest $request, Employee $employee): RedirectResponse
     {
+        $oldData = $employee->attributesToArray();
         $employee->update($request->validated());
+        $this->logUpdated($employee, $oldData);
 
         return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
     }
 
     public function destroy(Employee $employee): RedirectResponse
     {
+        $oldData = $employee->attributesToArray();
         $employee->delete();
+        $this->logDeleted($employee, $oldData);
 
         return redirect()->route('employees.index')->with('success', 'Employee deleted successfully.');
     }

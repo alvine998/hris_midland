@@ -25,7 +25,9 @@ class ProfileController extends Controller
             unset($data['password']);
         }
 
+        $oldData = $user->attributesToArray();
         $user->update($data);
+        $this->logUpdated($user, $oldData);
 
         return redirect()->route('profile.index')->with('success', 'Profile updated successfully.');
     }

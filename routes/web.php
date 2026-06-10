@@ -57,6 +57,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+    Route::get('/settings/documentation', [SettingsController::class, 'documentation'])->name('settings.documentation');
 
     Route::post('/contracts', [ContractController::class, 'store'])->name('contracts.store');
     Route::put('/contracts/{contract}', [ContractController::class, 'update'])->name('contracts.update');

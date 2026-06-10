@@ -29,21 +29,26 @@ class UserRoleController extends Controller
 
     public function store(StoreUserRoleRequest $request): RedirectResponse
     {
-        UserRole::create($request->validated());
+        $userRole = UserRole::create($request->validated());
+        $this->logCreated($userRole);
 
         return redirect()->route('user-roles.index')->with('success', 'User role assigned successfully.');
     }
 
     public function update(StoreUserRoleRequest $request, UserRole $userRole): RedirectResponse
     {
+        $oldData = $userRole->attributesToArray();
         $userRole->update($request->validated());
+        $this->logUpdated($userRole, $oldData);
 
         return redirect()->route('user-roles.index')->with('success', 'User role updated successfully.');
     }
 
     public function destroy(UserRole $userRole): RedirectResponse
     {
+        $oldData = $userRole->attributesToArray();
         $userRole->delete();
+        $this->logDeleted($userRole, $oldData);
 
         return redirect()->route('user-roles.index')->with('success', 'User role removed successfully.');
     }

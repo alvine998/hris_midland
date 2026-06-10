@@ -71,7 +71,8 @@ class LeaveRequestController extends Controller
             Carbon::parse($data['end_date']),
         );
 
-        LeaveRequest::create($data);
+        $leaveRequest = LeaveRequest::create($data);
+        $this->logCreated($leaveRequest, 'Leave Management');
 
         return back()->with('success', 'Leave request created successfully.');
     }
@@ -87,10 +88,11 @@ class LeaveRequestController extends Controller
         );
 
         foreach ($employeeIds as $employeeId) {
-            LeaveRequest::create([
+            $leaveRequest = LeaveRequest::create([
                 ...$data,
                 'employee_id' => $employeeId,
             ]);
+            $this->logCreated($leaveRequest, 'Leave Management');
         }
 
         return back()->with('success', count($employeeIds).' leave request(s) created successfully.');
@@ -104,14 +106,18 @@ class LeaveRequestController extends Controller
             Carbon::parse($data['end_date']),
         );
 
+        $oldData = $leaveRequest->attributesToArray();
         $leaveRequest->update($data);
+        $this->logUpdated($leaveRequest, $oldData, 'Leave Management');
 
         return back()->with('success', 'Leave request updated successfully.');
     }
 
     public function destroy(LeaveRequest $leaveRequest): RedirectResponse
     {
+        $oldData = $leaveRequest->attributesToArray();
         $leaveRequest->delete();
+        $this->logDeleted($leaveRequest, $oldData, 'Leave Management');
 
         return back()->with('success', 'Leave request deleted successfully.');
     }

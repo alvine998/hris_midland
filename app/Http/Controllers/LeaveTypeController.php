@@ -22,21 +22,26 @@ class LeaveTypeController extends Controller
 
     public function store(StoreLeaveTypeRequest $request): RedirectResponse
     {
-        LeaveType::create($request->validated());
+        $leaveType = LeaveType::create($request->validated());
+        $this->logCreated($leaveType, 'Leave Management');
 
         return back()->with('success', 'Leave type created successfully.');
     }
 
     public function update(StoreLeaveTypeRequest $request, LeaveType $leaveType): RedirectResponse
     {
+        $oldData = $leaveType->attributesToArray();
         $leaveType->update($request->validated());
+        $this->logUpdated($leaveType, $oldData, 'Leave Management');
 
         return back()->with('success', 'Leave type updated successfully.');
     }
 
     public function destroy(LeaveType $leaveType): RedirectResponse
     {
+        $oldData = $leaveType->attributesToArray();
         $leaveType->delete();
+        $this->logDeleted($leaveType, $oldData, 'Leave Management');
 
         return back()->with('success', 'Leave type deleted successfully.');
     }

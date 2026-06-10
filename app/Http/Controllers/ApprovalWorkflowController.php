@@ -37,21 +37,26 @@ class ApprovalWorkflowController extends Controller
 
     public function store(StoreApprovalWorkflowRequest $request): RedirectResponse
     {
-        ApprovalWorkflow::create($request->validated());
+        $approvalWorkflow = ApprovalWorkflow::create($request->validated());
+        $this->logCreated($approvalWorkflow, 'Leave Management');
 
         return back()->with('success', 'Approval workflow created successfully.');
     }
 
     public function update(StoreApprovalWorkflowRequest $request, ApprovalWorkflow $approvalWorkflow): RedirectResponse
     {
+        $oldData = $approvalWorkflow->attributesToArray();
         $approvalWorkflow->update($request->validated());
+        $this->logUpdated($approvalWorkflow, $oldData, 'Leave Management');
 
         return back()->with('success', 'Approval workflow updated successfully.');
     }
 
     public function destroy(ApprovalWorkflow $approvalWorkflow): RedirectResponse
     {
+        $oldData = $approvalWorkflow->attributesToArray();
         $approvalWorkflow->delete();
+        $this->logDeleted($approvalWorkflow, $oldData, 'Leave Management');
 
         return back()->with('success', 'Approval workflow deleted successfully.');
     }
