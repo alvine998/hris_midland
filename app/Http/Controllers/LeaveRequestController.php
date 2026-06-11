@@ -7,26 +7,39 @@ use App\Http\Requests\StoreLeaveRequestRequest;
 use App\Models\Company;
 use App\Models\Department;
 use App\Models\Division;
-use App\Models\Employee;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use App\Models\Section;
 use App\Models\WorkLocation;
 use App\Services\LeaveInclusiveDayService;
+use App\Services\ListSearchService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class LeaveRequestController extends Controller
 {
     public function index(Request $request): View
     {
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'status' => ['nullable', Rule::in(['on_progress', 'approved', 'rejected', 'cancelled'])],
+            'leave_type_id' => ['nullable', 'integer', 'exists:leave_types,id'],
+            'company_id' => ['nullable', 'integer', 'exists:companies,id'],
+            'department_id' => ['nullable', 'integer', 'exists:departments,id'],
+            'division_id' => ['nullable', 'integer', 'exists:divisions,id'],
+            'section_id' => ['nullable', 'integer', 'exists:sections,id'],
+            'work_location_id' => ['nullable', 'integer', 'exists:work_locations,id'],
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+        ]);
         $companies = Company::orderBy('name')->get();
 
         $leaveRequests = LeaveRequest::with(['employee.company', 'employee.department', 'employee.division', 'employee.section', 'employee.workLocation', 'leaveType', 'delegatedEmployee'])
             ->when($request->filled('search'), function ($query) use ($request): void {
-                $search = trim((string) $request->query('search'));
+                $search = ListSearchService::searchTerm($request);
 
                 $query->where(function ($query) use ($search): void {
                     $query->where('title', 'like', "%{$search}%")
@@ -38,22 +51,21 @@ class LeaveRequestController extends Controller
                         });
                 });
             })
-            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->query('status')))
-            ->when($request->filled('leave_type_id'), fn ($query) => $query->where('leave_type_id', $request->query('leave_type_id')))
-            ->when($request->filled('date_from'), fn ($query) => $query->whereDate('start_date', '>=', $request->query('date_from')))
-            ->when($request->filled('date_to'), fn ($query) => $query->whereDate('end_date', '<=', $request->query('date_to')))
-            ->when($request->filled('company_id'), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('company_id', $request->query('company_id'))))
-            ->when($request->filled('department_id'), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('department_id', $request->query('department_id'))))
-            ->when($request->filled('division_id'), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('division_id', $request->query('division_id'))))
-            ->when($request->filled('section_id'), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('section_id', $request->query('section_id'))))
-            ->when($request->filled('work_location_id'), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('work_location_id', $request->query('work_location_id'))))
+            ->when(filled($filters['status'] ?? null), fn ($query) => $query->where('status', $filters['status']))
+            ->when(filled($filters['leave_type_id'] ?? null), fn ($query) => $query->where('leave_type_id', $filters['leave_type_id']))
+            ->when(filled($filters['date_from'] ?? null), fn ($query) => $query->whereDate('start_date', '>=', $filters['date_from']))
+            ->when(filled($filters['date_to'] ?? null), fn ($query) => $query->whereDate('end_date', '<=', $filters['date_to']))
+            ->when(filled($filters['company_id'] ?? null), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('company_id', $filters['company_id'])))
+            ->when(filled($filters['department_id'] ?? null), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('department_id', $filters['department_id'])))
+            ->when(filled($filters['division_id'] ?? null), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('division_id', $filters['division_id'])))
+            ->when(filled($filters['section_id'] ?? null), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('section_id', $filters['section_id'])))
+            ->when(filled($filters['work_location_id'] ?? null), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('work_location_id', $filters['work_location_id'])))
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
         return view('leave-requests.index', [
             'leaveRequests' => $leaveRequests,
-            'employees' => Employee::orderBy('name')->get(),
             'leaveTypes' => LeaveType::orderBy('name')->get(),
             'companies' => $companies,
             'departments' => Department::orderBy('name')->get(),

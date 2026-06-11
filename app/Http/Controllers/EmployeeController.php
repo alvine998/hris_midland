@@ -19,19 +19,30 @@ use App\Models\Religion;
 use App\Models\Section;
 use App\Models\Shift;
 use App\Models\WorkLocation;
+use App\Services\ListSearchService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class EmployeeController extends Controller
 {
     public function index(Request $request): View
     {
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'status' => ['nullable', Rule::in(['active', 'inactive'])],
+            'company_id' => ['nullable', 'integer', 'exists:companies,id'],
+            'department_id' => ['nullable', 'integer', 'exists:departments,id'],
+            'division_id' => ['nullable', 'integer', 'exists:divisions,id'],
+            'section_id' => ['nullable', 'integer', 'exists:sections,id'],
+            'work_location_id' => ['nullable', 'integer', 'exists:work_locations,id'],
+        ]);
         $companies = Company::orderBy('name')->get();
 
         $employees = Employee::with(['company', 'department', 'division', 'section', 'jobPosition', 'religion', 'workLocation'])
             ->when($request->filled('search'), function ($query) use ($request): void {
-                $search = trim((string) $request->query('search'));
+                $search = ListSearchService::searchTerm($request);
 
                 $query->where(function ($query) use ($search): void {
                     $query->where('name', 'like', "%{$search}%")
@@ -39,12 +50,12 @@ class EmployeeController extends Controller
                         ->orWhere('email', 'like', "%{$search}%");
                 });
             })
-            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->query('status')))
-            ->when($request->filled('company_id'), fn ($query) => $query->where('company_id', $request->query('company_id')))
-            ->when($request->filled('department_id'), fn ($query) => $query->where('department_id', $request->query('department_id')))
-            ->when($request->filled('division_id'), fn ($query) => $query->where('division_id', $request->query('division_id')))
-            ->when($request->filled('section_id'), fn ($query) => $query->where('section_id', $request->query('section_id')))
-            ->when($request->filled('work_location_id'), fn ($query) => $query->where('work_location_id', $request->query('work_location_id')))
+            ->when(filled($filters['status'] ?? null), fn ($query) => $query->where('status', $filters['status']))
+            ->when(filled($filters['company_id'] ?? null), fn ($query) => $query->where('company_id', $filters['company_id']))
+            ->when(filled($filters['department_id'] ?? null), fn ($query) => $query->where('department_id', $filters['department_id']))
+            ->when(filled($filters['division_id'] ?? null), fn ($query) => $query->where('division_id', $filters['division_id']))
+            ->when(filled($filters['section_id'] ?? null), fn ($query) => $query->where('section_id', $filters['section_id']))
+            ->when(filled($filters['work_location_id'] ?? null), fn ($query) => $query->where('work_location_id', $filters['work_location_id']))
             ->paginate(10)
             ->withQueryString();
 
@@ -113,7 +124,6 @@ class EmployeeController extends Controller
             'relationships' => Relationship::all(),
             'documentTypes' => DocumentType::all(),
             'leaveTypes' => LeaveType::all(),
-            'employees' => Employee::whereKeyNot($employee->id)->get(),
             'shifts' => Shift::all(),
         ]);
     }

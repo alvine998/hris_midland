@@ -103,6 +103,15 @@ class SettingsController extends Controller
                     ],
                 ],
                 [
+                    'title' => 'Performance Management',
+                    'description' => 'Manage employee KPI targets and 360 feedback records from the Performance sidebar group.',
+                    'steps' => [
+                        'Open KPI to create employee performance targets with period, target, actual result, weight, score, status, and notes.',
+                        'Open 360 Feedback to record reviewer feedback by manager, peer, subordinate, self, or external reviewer.',
+                        'Use score fields and comments to summarize strengths, improvements, and overall performance by period.',
+                    ],
+                ],
+                [
                     'title' => 'Transfers',
                     'description' => 'Record employee transfers between companies, departments, divisions, sections, work locations, or other transfer scopes.',
                     'steps' => [

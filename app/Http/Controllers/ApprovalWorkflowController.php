@@ -7,7 +7,6 @@ use App\Models\ApprovalWorkflow;
 use App\Models\Company;
 use App\Models\Department;
 use App\Models\Division;
-use App\Models\Employee;
 use App\Models\Section;
 use App\Models\WorkLocation;
 use App\Services\ListSearchService;
@@ -31,7 +30,6 @@ class ApprovalWorkflowController extends Controller
             'divisions' => Division::all(),
             'sections' => Section::all(),
             'workLocations' => WorkLocation::all(),
-            'employees' => Employee::all(),
         ]);
     }
 

@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             SalarySeeder::class,
             AttendanceSeeder::class,
             LeaveBalanceSeeder::class,
+            NotificationSeeder::class,
         ]);
 
         $users = [

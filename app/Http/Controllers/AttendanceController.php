@@ -10,11 +10,13 @@ use App\Models\Division;
 use App\Models\Employee;
 use App\Models\Section;
 use App\Models\WorkLocation;
+use App\Services\ListSearchService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -173,9 +175,21 @@ class AttendanceController extends Controller
 
     private function attendanceQuery(Request $request)
     {
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'status' => ['nullable', Rule::in(['present', 'absent', 'sick', 'excuse'])],
+            'company_id' => ['nullable', 'integer', 'exists:companies,id'],
+            'department_id' => ['nullable', 'integer', 'exists:departments,id'],
+            'division_id' => ['nullable', 'integer', 'exists:divisions,id'],
+            'section_id' => ['nullable', 'integer', 'exists:sections,id'],
+            'work_location_id' => ['nullable', 'integer', 'exists:work_locations,id'],
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+        ]);
+
         return Attendance::with(['employee.company', 'employee.department', 'employee.division', 'employee.section', 'employee.workLocation'])
             ->when($request->filled('search'), function ($query) use ($request): void {
-                $search = trim((string) $request->query('search'));
+                $search = ListSearchService::searchTerm($request);
 
                 $query->whereHas('employee', function ($query) use ($search): void {
                     $query->where('name', 'like', "%{$search}%")
@@ -183,14 +197,14 @@ class AttendanceController extends Controller
                         ->orWhere('email', 'like', "%{$search}%");
                 });
             })
-            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->query('status')))
-            ->when($request->filled('date_from'), fn ($query) => $query->whereDate('clock_in', '>=', $request->query('date_from')))
-            ->when($request->filled('date_to'), fn ($query) => $query->whereDate('clock_in', '<=', $request->query('date_to')))
-            ->when($request->filled('company_id'), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('company_id', $request->query('company_id'))))
-            ->when($request->filled('department_id'), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('department_id', $request->query('department_id'))))
-            ->when($request->filled('division_id'), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('division_id', $request->query('division_id'))))
-            ->when($request->filled('section_id'), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('section_id', $request->query('section_id'))))
-            ->when($request->filled('work_location_id'), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('work_location_id', $request->query('work_location_id'))));
+            ->when(filled($filters['status'] ?? null), fn ($query) => $query->where('status', $filters['status']))
+            ->when(filled($filters['date_from'] ?? null), fn ($query) => $query->whereDate('clock_in', '>=', $filters['date_from']))
+            ->when(filled($filters['date_to'] ?? null), fn ($query) => $query->whereDate('clock_in', '<=', $filters['date_to']))
+            ->when(filled($filters['company_id'] ?? null), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('company_id', $filters['company_id'])))
+            ->when(filled($filters['department_id'] ?? null), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('department_id', $filters['department_id'])))
+            ->when(filled($filters['division_id'] ?? null), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('division_id', $filters['division_id'])))
+            ->when(filled($filters['section_id'] ?? null), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('section_id', $filters['section_id'])))
+            ->when(filled($filters['work_location_id'] ?? null), fn ($query) => $query->whereHas('employee', fn ($query) => $query->where('work_location_id', $filters['work_location_id'])));
     }
 
     private function attendanceRow(Attendance $attendance): array

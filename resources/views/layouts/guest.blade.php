@@ -14,6 +14,8 @@
     @stack('head')
 </head>
 <body class="font-sans antialiased text-gray-900 bg-gray-50 dark:text-gray-100 dark:bg-gray-900 min-h-screen flex flex-col">
+    <x-toasts />
+
     @yield('content')
 
     <footer class="py-6 text-center text-sm text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800 mt-auto">

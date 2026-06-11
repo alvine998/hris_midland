@@ -77,7 +77,13 @@
                         <label class="{{ in_array($type, ['textarea', 'json', 'multiselect']) ? 'md:col-span-2' : '' }}">
                             <span class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ $field['label'] }}</span>
                             @if ($type === 'textarea' || $type === 'json')
-                                <textarea name="{{ $field['name'] }}" x-model="item.{{ $field['name'] }}" rows="4" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"></textarea>
+                                <textarea name="{{ $field['name'] }}" x-model="item.{{ $field['name'] }}" rows="4" placeholder="Enter {{ $field['label'] }}" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"></textarea>
+                            @elseif ($type === 'select' && ($field['options'] ?? null) === 'employees')
+                                <x-employee-async-select
+                                    name="{{ $field['name'] }}"
+                                    model="item.{{ $field['name'] }}"
+                                    placeholder="Search employee by name, NIP, or email..."
+                                />
                             @elseif ($type === 'select')
                                 <select name="{{ $field['name'] }}" x-model="item.{{ $field['name'] }}" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                                     <option value="">Select...</option>
@@ -101,7 +107,7 @@
                                 <input type="hidden" name="{{ $field['name'] }}" value="0">
                                 <input type="checkbox" name="{{ $field['name'] }}" value="1" x-model="item.{{ $field['name'] }}" class="h-5 w-5 rounded border-gray-300 text-indigo-600">
                             @else
-                                <input type="{{ $type }}" name="{{ $field['name'] }}" x-model="item.{{ $field['name'] }}" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                                <input type="{{ $type }}" name="{{ $field['name'] }}" x-model="item.{{ $field['name'] }}" placeholder="Enter {{ $field['label'] }}" @if ($type === 'number') step="any" @endif class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                             @endif
                         </label>
                     @endforeach

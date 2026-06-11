@@ -21,14 +21,14 @@ class ForgotPasswordController extends Controller
     {
         $user = User::where('email', $request->input('email'))->first();
 
-        $otpService->generate($user, 'password_reset');
+        if ($user) {
+            $otpService->generate($user, 'password_reset');
 
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+            Password::sendResetLink(
+                $request->only('email')
+            );
+        }
 
-        return $status === Password::RESET_LINK_SENT
-            ? back()->with(['status' => __($status)])
-            : back()->withErrors(['email' => __($status)]);
+        return back()->with(['status' => __(Password::RESET_LINK_SENT)]);
     }
 }

@@ -12,11 +12,48 @@
     @stack('head')
 </head>
 <body class="font-sans antialiased text-gray-900 bg-gray-50 dark:text-gray-100 dark:bg-gray-900 overflow-x-hidden">
+
+    <div
+        x-data="{
+            loading: false,
+            progress: 0,
+            interval: null,
+            init() {
+                this.finish();
+                document.addEventListener('click', (e) => {
+                    let link = e.target.closest('a');
+                    if (!link || link.target === '_blank' || link.hostname !== window.location.hostname || link.hasAttribute('download') || link.getAttribute('href') === '#' || e.metaKey || e.ctrlKey || e.shiftKey) return;
+                    this.start();
+                });
+            },
+            start() {
+                this.loading = true;
+                this.progress = 20;
+                clearInterval(this.interval);
+                this.interval = setInterval(() => {
+                    this.progress = Math.min(this.progress + (100 - this.progress) * 0.06, 85);
+                }, 120);
+            },
+            finish() {
+                this.loading = false;
+                this.progress = 0;
+                clearInterval(this.interval);
+            }
+        }"
+        class="fixed top-0 left-0 right-0 z-[60] h-0.5 bg-indigo-500/30 transition-opacity duration-300 opacity-0"
+        :class="loading ? 'opacity-100' : 'opacity-0'"
+    >
+        <div class="h-full w-full origin-left bg-indigo-600 transition-transform duration-[80ms] ease-linear" :style="`transform: scaleX(${progress / 100})`"></div>
+    </div>
+
+    <x-toasts />
+
     <div
         x-data="{
             sidebarOpen: false,
             darkMode: localStorage.getItem('darkMode') === 'true',
             userMenuOpen: false,
+            notificationOpen: false,
             init() {
                 if (this.darkMode) {
                     document.documentElement.classList.add('dark');
@@ -61,12 +98,12 @@
                 </a>
 
                 {{-- Employees Group --}}
-                <div x-data="{ open: localStorage.getItem('sidebar_group_employees') !== 'false' }">
+                <div x-data="{ open: localStorage.getItem('sidebar_group_employees') === 'true' }">
                     <button @click="open = !open; localStorage.setItem('sidebar_group_employees', open)" class="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                         <span>Employees</span>
                         <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
-                    <div x-show="open" x-collapse>
+                    <div x-cloak x-show="open" x-collapse>
                         <a href="{{ route('employees.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                             All Employees
@@ -75,12 +112,12 @@
                 </div>
 
                 {{-- Leave Management Group --}}
-                <div x-data="{ open: localStorage.getItem('sidebar_group_leave_management') !== 'false' }">
+                <div x-data="{ open: localStorage.getItem('sidebar_group_leave_management') === 'true' }">
                     <button @click="open = !open; localStorage.setItem('sidebar_group_leave_management', open)" class="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                         <span>Leave Management</span>
                         <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
-                    <div x-show="open" x-collapse>
+                    <div x-cloak x-show="open" x-collapse>
                         <a href="{{ route('leave-requests.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7H5v12z"/></svg>
                             Leave Requests
@@ -101,60 +138,104 @@
                 </div>
 
                 {{-- Payroll Group --}}
-                <div x-data="{ open: localStorage.getItem('sidebar_group_payroll') !== 'false' }">
+                <div x-data="{ open: localStorage.getItem('sidebar_group_payroll') === 'true' }">
                     <button @click="open = !open; localStorage.setItem('sidebar_group_payroll', open)" class="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                         <span>Payroll</span>
                         <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
-                    <div x-show="open" x-collapse>
+                    <div x-cloak x-show="open" x-collapse>
                         <a href="{{ route('admin-crud.index', 'payroll-periods') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">Payroll Periods</a>
                         <a href="{{ route('admin-crud.index', 'payrolls') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">Payrolls</a>
                     </div>
                 </div>
 
+                {{-- Reports Group --}}
+                <div x-data="{ open: localStorage.getItem('sidebar_group_reports') === 'true' }">
+                    <button @click="open = !open; localStorage.setItem('sidebar_group_reports', open)" class="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                        <span>Reports</span>
+                        <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div x-cloak x-show="open" x-collapse>
+                        <a href="{{ route('performance.report') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                            Performance Report
+                        </a>
+                        <a href="{{ route('attendances.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            Attendance Report
+                        </a>
+                        <a href="{{ route('leave-requests.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7H5v12z"/></svg>
+                            Leave Report
+                        </a>
+                        <a href="{{ route('admin-crud.index', 'activity-logs') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Activity Logs
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Performance Group --}}
+                <div x-data="{ open: localStorage.getItem('sidebar_group_performance') === 'true' }">
+                    <button @click="open = !open; localStorage.setItem('sidebar_group_performance', open)" class="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                        <span>Performance</span>
+                        <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div x-cloak x-show="open" x-collapse>
+                        <a href="{{ route('admin-crud.index', 'kpis') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+                            KPI
+                        </a>
+                        <a href="{{ route('performance.feedback360.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v3l-4-3H9a2 2 0 01-2-2v-1m10-7V5a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v3l4-3h4a2 2 0 002-2V8z"/></svg>
+                            360 Feedback
+                        </a>
+                    </div>
+                </div>
+
                 {{-- Transfer Group --}}
-                <div x-data="{ open: localStorage.getItem('sidebar_group_transfer') !== 'false' }">
+                <div x-data="{ open: localStorage.getItem('sidebar_group_transfer') === 'true' }">
                     <button @click="open = !open; localStorage.setItem('sidebar_group_transfer', open)" class="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                         <span>Transfer</span>
                         <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
-                    <div x-show="open" x-collapse>
+                    <div x-cloak x-show="open" x-collapse>
                         <a href="{{ route('admin-crud.index', 'transfers') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">Transfers</a>
                         <a href="{{ route('admin-crud.index', 'transfer-types') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">Transfer Types</a>
                     </div>
                 </div>
 
                 {{-- Facilities Group --}}
-                <div x-data="{ open: localStorage.getItem('sidebar_group_facilities') !== 'false' }">
+                <div x-data="{ open: localStorage.getItem('sidebar_group_facilities') === 'true' }">
                     <button @click="open = !open; localStorage.setItem('sidebar_group_facilities', open)" class="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                         <span>Facilities</span>
                         <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
-                    <div x-show="open" x-collapse>
+                    <div x-cloak x-show="open" x-collapse>
                         <a href="{{ route('admin-crud.index', 'facilities') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">Facilities</a>
                         <a href="{{ route('admin-crud.index', 'facility-criterias') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">Facility Criteria</a>
                     </div>
                 </div>
 
                 {{-- Communication Group --}}
-                <div x-data="{ open: localStorage.getItem('sidebar_group_communication') !== 'false' }">
+                <div x-data="{ open: localStorage.getItem('sidebar_group_communication') === 'true' }">
                     <button @click="open = !open; localStorage.setItem('sidebar_group_communication', open)" class="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                         <span>Communication</span>
                         <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
-                    <div x-show="open" x-collapse>
+                    <div x-cloak x-show="open" x-collapse>
                         <a href="{{ route('admin-crud.index', 'notifications') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">Notifications</a>
                         <a href="{{ route('communication.chats.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">Chats</a>
                     </div>
                 </div>
 
                 {{-- Attendance Group --}}
-                <div x-data="{ open: localStorage.getItem('sidebar_group_attendance') !== 'false' }">
+                <div x-data="{ open: localStorage.getItem('sidebar_group_attendance') === 'true' }">
                     <button @click="open = !open; localStorage.setItem('sidebar_group_attendance', open)" class="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                         <span>Attendance</span>
                         <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
-                    <div x-show="open" x-collapse>
+                    <div x-cloak x-show="open" x-collapse>
                         <a href="{{ route('attendances.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             Attendances
@@ -163,12 +244,12 @@
                 </div>
 
                 {{-- Organization Group --}}
-                <div x-data="{ open: localStorage.getItem('sidebar_group_organization') !== 'false' }">
+                <div x-data="{ open: localStorage.getItem('sidebar_group_organization') === 'true' }">
                     <button @click="open = !open; localStorage.setItem('sidebar_group_organization', open)" class="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                         <span>Organization</span>
                         <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
-                    <div x-show="open" x-collapse>
+                    <div x-cloak x-show="open" x-collapse>
                         <a href="{{ route('master-data.companies') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                             Companies
@@ -193,12 +274,12 @@
                 </div>
 
                 {{-- Reference Group --}}
-                <div x-data="{ open: localStorage.getItem('sidebar_group_reference') !== 'false' }">
+                <div x-data="{ open: localStorage.getItem('sidebar_group_reference') === 'true' }">
                     <button @click="open = !open; localStorage.setItem('sidebar_group_reference', open)" class="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                         <span>Reference</span>
                         <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
-                    <div x-show="open" x-collapse>
+                    <div x-cloak x-show="open" x-collapse>
                         <a href="{{ route('master-data.levels') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                             Levels
@@ -251,12 +332,12 @@
                 </div>
 
                 {{-- Administration Group --}}
-                <div x-data="{ open: localStorage.getItem('sidebar_group_administration') !== 'false' }">
+                <div x-data="{ open: localStorage.getItem('sidebar_group_administration') === 'true' }">
                     <button @click="open = !open; localStorage.setItem('sidebar_group_administration', open)" class="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                         <span>Administration</span>
                         <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
-                    <div x-show="open" x-collapse>
+                    <div x-cloak x-show="open" x-collapse>
                         <a href="{{ route('user-roles.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                             User Roles
@@ -332,6 +413,64 @@
                         </svg>
                     </button>
 
+                    <div class="relative" @click.outside="notificationOpen = false">
+                        <button
+                            type="button"
+                            @click="notificationOpen = !notificationOpen; userMenuOpen = false"
+                            class="relative p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            aria-label="Open notifications"
+                            title="Notifications"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0a3 3 0 11-6 0m6 0H9"/>
+                            </svg>
+                            @if ($globalNotifications->where('is_read', false)->isNotEmpty())
+                                <span class="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-gray-800"></span>
+                            @endif
+                        </button>
+
+                        <div
+                            x-show="notificationOpen"
+                            x-cloak
+                            x-transition:enter="transition ease-out duration-100"
+                            x-transition:enter-start="transform opacity-0 scale-95"
+                            x-transition:enter-end="transform opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-75"
+                            x-transition:leave-start="transform opacity-100 scale-100"
+                            x-transition:leave-end="transform opacity-0 scale-95"
+                            class="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800"
+                        >
+                            <div class="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
+                                <p class="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">Notifications</p>
+                            </div>
+
+                            <div class="max-h-80 overflow-y-auto py-1">
+                                @forelse ($globalNotifications as $notification)
+                                    <div class="border-b border-gray-100 px-4 py-3 last:border-0 dark:border-gray-700/70">
+                                        <div class="flex items-start gap-3">
+                                            <span class="mt-1 h-2 w-2 shrink-0 rounded-full {{ $notification->is_read ? 'bg-gray-300 dark:bg-gray-600' : 'bg-indigo-500' }}"></span>
+                                            <div class="min-w-0 flex-1">
+                                                <p class="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{{ $notification->title }}</p>
+                                                @if ($notification->message)
+                                                    <p class="mt-0.5 line-clamp-2 text-xs leading-5 text-gray-500 dark:text-gray-400">{{ $notification->message }}</p>
+                                                @endif
+                                                <p class="mt-1 text-[11px] text-gray-400 dark:text-gray-500">{{ $notification->created_at?->diffForHumans() }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                                        No notifications yet.
+                                    </div>
+                                @endforelse
+                            </div>
+
+                            <a href="{{ route('admin-crud.index', 'notifications') }}" class="block border-t border-gray-200 px-4 py-3 text-center text-sm font-medium text-indigo-600 hover:bg-gray-50 dark:border-gray-700 dark:text-indigo-400 dark:hover:bg-gray-700/60">
+                                View All
+                            </a>
+                        </div>
+                    </div>
+
                     {{-- User dropdown --}}
                     <div class="relative" @click.outside="userMenuOpen = false">
                         <button
@@ -404,9 +543,9 @@
                 &copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
             </footer>
         </div>
-    </div>
 
-    <x-chat-widget :chats="$globalChats" :users="$globalChatUsers" />
+        <x-chat-widget :chats="$globalChats" :users="$globalChatUsers" />
+    </div>
 
     @stack('scripts')
 </body>

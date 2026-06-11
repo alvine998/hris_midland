@@ -13,7 +13,7 @@ class ListSearchService
             return $query;
         }
 
-        $search = trim((string) $request->query('search'));
+        $search = self::searchTerm($request);
 
         if ($search === '') {
             return $query;
@@ -32,5 +32,13 @@ class ListSearchService
                 });
             }
         });
+    }
+
+    public static function searchTerm(Request $request): string
+    {
+        $search = trim((string) $request->query('search'));
+        $search = mb_substr($search, 0, 100);
+
+        return addcslashes($search, '\\%_');
     }
 }

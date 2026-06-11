@@ -136,19 +136,20 @@
                 <input type="hidden" name="_method" :value="editModal ? 'PUT' : 'POST'">
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <template x-if="editModal">
-                        <select name="employee_id" x-model="editItem.employee_id" required class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                            <option value="">Select employee...</option>
-                            @foreach ($employees as $employee)
-                                <option value="{{ $employee->id }}">{{ $employee->name }} ({{ $employee->nip ?? 'No NIP' }})</option>
-                            @endforeach
-                        </select>
+                        <x-employee-async-select
+                            name="employee_id"
+                            model="editItem.employee_id"
+                            placeholder="Search employee by name, NIP, or email..."
+                            required
+                        />
                     </template>
                     <template x-if="! editModal">
-                        <select name="employee_ids[]" multiple required class="min-h-44 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                            @foreach ($employees as $employee)
-                                <option value="{{ $employee->id }}">{{ $employee->name }} ({{ $employee->nip ?? 'No NIP' }})</option>
-                            @endforeach
-                        </select>
+                        <x-employee-async-select
+                            name="employee_ids"
+                            multiple
+                            placeholder="Search and add employees..."
+                            required
+                        />
                     </template>
                     <select name="leave_type_id" x-model="editItem.leave_type_id" class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         <option value="">Leave type...</option>
@@ -157,12 +158,11 @@
                         @endforeach
                     </select>
                     <input type="text" name="title" x-model="editItem.title" required placeholder="Title" class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                    <select name="employee_delegation_id" x-model="editItem.employee_delegation_id" class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                        <option value="">Delegated employee...</option>
-                        @foreach ($employees as $employee)
-                            <option value="{{ $employee->id }}">{{ $employee->name }}</option>
-                        @endforeach
-                    </select>
+                    <x-employee-async-select
+                        name="employee_delegation_id"
+                        model="editItem.employee_delegation_id"
+                        placeholder="Search delegated employee..."
+                    />
                     <input type="date" name="start_date" x-model="editItem.start_date" required class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                     <input type="date" name="end_date" x-model="editItem.end_date" required class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                     <input type="number" name="inclusive_days" x-model="editItem.inclusive_days" min="0" required placeholder="Inclusive days" class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">

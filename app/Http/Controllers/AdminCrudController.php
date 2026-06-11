@@ -10,6 +10,8 @@ use App\Models\Employee;
 use App\Models\EmployeeNotification;
 use App\Models\Facility;
 use App\Models\FacilityCriteria;
+use App\Models\Feedback360;
+use App\Models\Kpi;
 use App\Models\LeaveSetting;
 use App\Models\LoginAttempt;
 use App\Models\Module;
@@ -22,6 +24,7 @@ use App\Models\User;
 use App\Models\WorkLocation;
 use App\Services\ListSearchService;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -82,6 +85,54 @@ class AdminCrudController extends Controller
         $this->logDeleted($item, $oldData);
 
         return back()->with('success', $config['singular'].' deleted successfully.');
+    }
+
+    public function employeeOptions(Request $request): JsonResponse
+    {
+        $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'selected' => ['nullable', 'array'],
+            'selected.*' => ['integer'],
+        ]);
+
+        $selectedIds = collect($request->query('selected', []))
+            ->filter(fn ($id) => filter_var($id, FILTER_VALIDATE_INT) !== false)
+            ->take(50)
+            ->values();
+
+        $selectedEmployees = $selectedIds->isEmpty()
+            ? collect()
+            : Employee::query()
+                ->whereKey($selectedIds)
+                ->get(['id', 'name', 'nip', 'email']);
+
+        $search = ListSearchService::searchTerm($request);
+
+        $employees = Employee::query()
+            ->select(['id', 'name', 'nip', 'email'])
+            ->when($search !== '', function ($query) use ($search): void {
+                $query->where(function ($query) use ($search): void {
+                    $query->where('name', 'like', "%{$search}%")
+                        ->orWhere('nip', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('name')
+            ->limit(20)
+            ->get();
+
+        return response()->json([
+            'results' => $selectedEmployees
+                ->merge($employees)
+                ->unique('id')
+                ->values()
+                ->map(fn (Employee $employee): array => [
+                    'id' => $employee->id,
+                    'name' => $employee->name,
+                    'label' => trim($employee->name.' ('.($employee->nip ?: 'No NIP').')'),
+                    'meta' => collect([$employee->nip, $employee->email])->filter()->implode(' / ') ?: 'No NIP',
+                ]),
+        ]);
     }
 
     private function config(string $resource): array
@@ -183,6 +234,55 @@ class AdminCrudController extends Controller
                 ],
                 'rules' => ['payroll_period_id' => ['nullable', 'exists:payroll_periods,id'], 'employee_id' => ['nullable', 'exists:employees,id'], 'basic_salary' => ['required', 'integer', 'min:0'], 'allowance_total' => ['required', 'integer', 'min:0'], 'deduction_total' => ['required', 'integer', 'min:0'], 'bpjs_total' => ['required', 'integer', 'min:0'], 'tax_pph21' => ['required', 'integer', 'min:0'], 'take_home_pay' => ['required', 'integer', 'min:0'], 'status' => ['required', 'in:paid,unpaid']],
             ],
+            'kpis' => [
+                'title' => 'KPI',
+                'singular' => 'KPI',
+                'model' => Kpi::class,
+                'with' => ['employee'],
+                'search' => ['title', 'period', 'status', 'description'],
+                'columns' => ['employee.name' => 'Employee', 'title' => 'Title', 'period' => 'Period', 'score' => 'Score', 'status' => 'Status'],
+                'fields' => [
+                    ['name' => 'employee_id', 'label' => 'Employee', 'type' => 'select', 'options' => 'employees'],
+                    ['name' => 'title', 'label' => 'Title', 'type' => 'text'],
+                    ['name' => 'description', 'label' => 'Description', 'type' => 'textarea'],
+                    ['name' => 'period', 'label' => 'Period', 'type' => 'text'],
+                    ['name' => 'target', 'label' => 'Target', 'type' => 'number'],
+                    ['name' => 'actual', 'label' => 'Actual', 'type' => 'number'],
+                    ['name' => 'weight', 'label' => 'Weight (%)', 'type' => 'number'],
+                    ['name' => 'score', 'label' => 'Score', 'type' => 'number'],
+                    ['name' => 'status', 'label' => 'Status', 'type' => 'select_static', 'choices' => ['draft' => 'Draft', 'active' => 'Active', 'completed' => 'Completed', 'archived' => 'Archived']],
+                    ['name' => 'start_date', 'label' => 'Start Date', 'type' => 'date'],
+                    ['name' => 'end_date', 'label' => 'End Date', 'type' => 'date'],
+                    ['name' => 'notes', 'label' => 'Notes', 'type' => 'textarea'],
+                ],
+                'rules' => ['employee_id' => ['nullable', 'exists:employees,id'], 'title' => ['required', 'string', 'max:255'], 'description' => ['nullable', 'string', 'max:2000'], 'period' => ['nullable', 'string', 'max:100'], 'target' => ['nullable', 'numeric', 'min:0'], 'actual' => ['nullable', 'numeric', 'min:0'], 'weight' => ['nullable', 'numeric', 'between:0,100'], 'score' => ['nullable', 'numeric', 'between:0,100'], 'status' => ['required', 'in:draft,active,completed,archived'], 'start_date' => ['nullable', 'date'], 'end_date' => ['nullable', 'date', 'after_or_equal:start_date'], 'notes' => ['nullable', 'string', 'max:2000']],
+            ],
+            'feedback-360' => [
+                'title' => '360 Feedback',
+                'singular' => '360 feedback',
+                'model' => Feedback360::class,
+                'with' => ['employee', 'reviewerEmployee'],
+                'search' => ['reviewer_name', 'reviewer_type', 'period', 'status', 'comments'],
+                'columns' => ['employee.name' => 'Employee', 'reviewerEmployee.name' => 'Reviewer', 'reviewer_type' => 'Type', 'overall_score' => 'Overall', 'status' => 'Status'],
+                'fields' => [
+                    ['name' => 'employee_id', 'label' => 'Employee', 'type' => 'select', 'options' => 'employees'],
+                    ['name' => 'reviewer_employee_id', 'label' => 'Reviewer Employee', 'type' => 'select', 'options' => 'employees'],
+                    ['name' => 'reviewer_name', 'label' => 'External Reviewer Name', 'type' => 'text'],
+                    ['name' => 'reviewer_type', 'label' => 'Reviewer Type', 'type' => 'select_static', 'choices' => ['manager' => 'Manager', 'peer' => 'Peer', 'subordinate' => 'Subordinate', 'self' => 'Self', 'external' => 'External']],
+                    ['name' => 'period', 'label' => 'Period', 'type' => 'text'],
+                    ['name' => 'communication_score', 'label' => 'Communication Score', 'type' => 'number'],
+                    ['name' => 'teamwork_score', 'label' => 'Teamwork Score', 'type' => 'number'],
+                    ['name' => 'leadership_score', 'label' => 'Leadership Score', 'type' => 'number'],
+                    ['name' => 'technical_score', 'label' => 'Technical Score', 'type' => 'number'],
+                    ['name' => 'overall_score', 'label' => 'Overall Score', 'type' => 'number'],
+                    ['name' => 'strengths', 'label' => 'Strengths', 'type' => 'textarea'],
+                    ['name' => 'improvements', 'label' => 'Improvements', 'type' => 'textarea'],
+                    ['name' => 'comments', 'label' => 'Comments', 'type' => 'textarea'],
+                    ['name' => 'status', 'label' => 'Status', 'type' => 'select_static', 'choices' => ['draft' => 'Draft', 'submitted' => 'Submitted', 'reviewed' => 'Reviewed', 'archived' => 'Archived']],
+                    ['name' => 'reviewed_at', 'label' => 'Reviewed At', 'type' => 'date'],
+                ],
+                'rules' => ['employee_id' => ['nullable', 'exists:employees,id'], 'reviewer_employee_id' => ['nullable', 'exists:employees,id'], 'reviewer_name' => ['nullable', 'string', 'max:255'], 'reviewer_type' => ['required', 'in:manager,peer,subordinate,self,external'], 'period' => ['nullable', 'string', 'max:100'], 'communication_score' => ['nullable', 'integer', 'between:1,100'], 'teamwork_score' => ['nullable', 'integer', 'between:1,100'], 'leadership_score' => ['nullable', 'integer', 'between:1,100'], 'technical_score' => ['nullable', 'integer', 'between:1,100'], 'overall_score' => ['nullable', 'integer', 'between:1,100'], 'strengths' => ['nullable', 'string', 'max:2000'], 'improvements' => ['nullable', 'string', 'max:2000'], 'comments' => ['nullable', 'string', 'max:2000'], 'status' => ['required', 'in:draft,submitted,reviewed,archived'], 'reviewed_at' => ['nullable', 'date']],
+            ],
             'transfer-types' => $this->simpleConfig('Transfer Types', TransferType::class, true),
             'transfers' => [
                 'title' => 'Transfers',
@@ -272,7 +372,7 @@ class AdminCrudController extends Controller
                 'companies' => Company::orderBy('name')->get(['id', 'name']),
                 'users' => User::orderBy('name')->get(['id', 'name']),
                 'modules' => Module::orderBy('name')->get(['id', 'name']),
-                'employees' => Employee::orderBy('name')->get(['id', 'name']),
+                'employees' => collect(),
                 'departments' => Department::orderBy('name')->get(['id', 'name']),
                 'divisions' => Division::orderBy('name')->get(['id', 'name']),
                 'sections' => Section::orderBy('name')->get(['id', 'name']),

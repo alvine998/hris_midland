@@ -17,12 +17,14 @@ use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeShiftController;
 use App\Http\Controllers\FamilyController;
+use App\Http\Controllers\Feedback360Controller;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\LeaveApprovalController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\LeaveTypeController;
 use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\PerformanceReportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReferenceController;
 use App\Http\Controllers\RelationshipController;
@@ -36,17 +38,17 @@ Route::get('/', [LandingPageController::class, 'index'])->name('landing');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [LoginController::class, 'login']);
+    Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:login');
 
     Route::get('/verify-otp', [OtpVerificationController::class, 'showVerifyForm'])->name('verify-otp');
-    Route::post('/verify-otp', [OtpVerificationController::class, 'verify'])->name('otp.verify');
-    Route::post('/verify-otp/resend', [OtpVerificationController::class, 'resend'])->name('otp.resend');
+    Route::post('/verify-otp', [OtpVerificationController::class, 'verify'])->middleware('throttle:otp')->name('otp.verify');
+    Route::post('/verify-otp/resend', [OtpVerificationController::class, 'resend'])->middleware('throttle:otp-resend')->name('otp.resend');
 
     Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotForm'])->name('password.request');
-    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink'])->middleware('throttle:password-reset')->name('password.email');
 
     Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
-    Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
+    Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->middleware('throttle:password-reset')->name('password.update');
 });
 
 Route::middleware('auth')->group(function () {
@@ -102,6 +104,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/attendances/template', [AttendanceController::class, 'template'])->name('attendances.template');
     Route::post('/attendances/import', [AttendanceController::class, 'import'])->name('attendances.import');
 
+    Route::get('/employee-options', [AdminCrudController::class, 'employeeOptions'])->name('employee-options.index');
     Route::get('/admin-crud/{resource}', [AdminCrudController::class, 'index'])->name('admin-crud.index');
     Route::post('/admin-crud/{resource}', [AdminCrudController::class, 'store'])->name('admin-crud.store');
     Route::put('/admin-crud/{resource}/{id}', [AdminCrudController::class, 'update'])->name('admin-crud.update');
@@ -123,6 +126,11 @@ Route::middleware('auth')->group(function () {
         Route::put('/user-roles/{userRole}', [UserRoleController::class, 'update'])->name('user-roles.update');
         Route::delete('/user-roles/{userRole}', [UserRoleController::class, 'destroy'])->name('user-roles.destroy');
     });
+
+    Route::get('/performance/feedback360', [Feedback360Controller::class, 'index'])->name('performance.feedback360.index');
+    Route::get('/performance/feedback360/create', [Feedback360Controller::class, 'create'])->name('performance.feedback360.create');
+    Route::post('/performance/feedback360', [Feedback360Controller::class, 'store'])->name('performance.feedback360.store');
+    Route::get('/performance/feedback360/{feedback}', [Feedback360Controller::class, 'show'])->name('performance.feedback360.show');
 
     Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
     Route::get('/employees/create', [EmployeeController::class, 'create'])->name('employees.create');
@@ -223,4 +231,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/master-data/approval-workflows', [ApprovalWorkflowController::class, 'store'])->name('master-data.approval-workflows.store');
     Route::put('/master-data/approval-workflows/{approvalWorkflow}', [ApprovalWorkflowController::class, 'update'])->name('master-data.approval-workflows.update');
     Route::delete('/master-data/approval-workflows/{approvalWorkflow}', [ApprovalWorkflowController::class, 'destroy'])->name('master-data.approval-workflows.destroy');
+
+    Route::get('/performance/report', [PerformanceReportController::class, 'index'])->name('performance.report');
 });

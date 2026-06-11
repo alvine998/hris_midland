@@ -120,6 +120,21 @@ class Employee extends Model
         return $this->hasOne(LeaveBalance::class);
     }
 
+    public function kpis(): HasMany
+    {
+        return $this->hasMany(Kpi::class);
+    }
+
+    public function feedback360s(): HasMany
+    {
+        return $this->hasMany(Feedback360::class);
+    }
+
+    public function submittedFeedback360s(): HasMany
+    {
+        return $this->hasMany(Feedback360::class, 'reviewer_employee_id');
+    }
+
     public function emergencyContacts(): HasMany
     {
         return $this->hasMany(EmergencyContact::class);

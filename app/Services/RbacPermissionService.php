@@ -39,11 +39,22 @@ class RbacPermissionService
                 'user-role.edit' => 'Edit user role assignments',
                 'user-role.delete' => 'Remove user role assignments',
             ],
+            'Feedback 360' => [
+                'feedback360.view' => 'View 360 feedback',
+                'feedback360.create' => 'Give 360 feedback',
+                'feedback360.edit' => 'Edit 360 feedback',
+                'feedback360.delete' => 'Delete 360 feedback',
+            ],
             'Contracts' => [
                 'contract.view' => 'View contracts',
                 'contract.create' => 'Create contracts',
                 'contract.edit' => 'Edit contracts',
                 'contract.delete' => 'Delete contracts',
+            ],
+            'Reports' => [
+                'report.performance.view' => 'View performance report',
+                'report.attendance.view' => 'View attendance report',
+                'report.leave.view' => 'View leave report',
             ],
             'Settings' => [
                 'settings.view' => 'View settings',

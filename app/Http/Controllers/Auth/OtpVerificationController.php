@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\OtpVerifyRequest;
 use App\Models\User;
+use App\Services\LoginAttemptService;
 use App\Services\OtpService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,7 +32,7 @@ class OtpVerificationController extends Controller
         ]);
     }
 
-    public function verify(OtpVerifyRequest $request, OtpService $otpService): RedirectResponse
+    public function verify(OtpVerifyRequest $request, OtpService $otpService, LoginAttemptService $loginAttemptService): RedirectResponse
     {
         $userId = $request->session()->get('otp_user_id');
 
@@ -45,17 +46,39 @@ class OtpVerificationController extends Controller
             return redirect()->route('login');
         }
 
+        if ($loginAttemptService->isLocked($user)) {
+            $seconds = $loginAttemptService->remainingSeconds($user);
+            $message = "Too many failed login attempts. Please wait {$seconds} seconds before trying again.";
+
+            return back()
+                ->withErrors(['otp_code' => $message])
+                ->with('warning', $message);
+        }
+
         if (! $otpService->verify($user, $request->input('otp_code'), 'login')) {
+            $loginAttemptService->recordFailed($user);
+            $message = 'The provided OTP code is invalid or has expired.';
+
+            if ($loginAttemptService->isLocked($user)) {
+                $seconds = $loginAttemptService->remainingSeconds($user);
+                $message = "Too many failed login attempts. Please wait {$seconds} seconds before trying again.";
+
+                return back()
+                    ->withErrors(['otp_code' => $message])
+                    ->with('warning', $message);
+            }
+
             return back()->withErrors([
-                'otp_code' => 'The provided OTP code is invalid or has expired.',
-            ]);
+                'otp_code' => $message,
+            ])->with('error', $message);
         }
 
         Auth::login($user);
+        $loginAttemptService->recordSuccessful($user);
 
         $request->session()->forget(['otp_user_id', 'otp_required']);
 
-        return redirect()->intended(route('dashboard'));
+        return redirect()->intended(route('dashboard'))->with('success', 'Login successful.');
     }
 
     public function resend(Request $request, OtpService $otpService): RedirectResponse
@@ -84,7 +107,7 @@ class OtpVerificationController extends Controller
 
             return back()->withErrors([
                 'resend' => "Please wait {$seconds} seconds before requesting a new OTP.",
-            ]);
+            ])->with('warning', "Please wait {$seconds} seconds before requesting a new OTP.");
         }
 
         $otpService->generate($user, 'login');
@@ -95,6 +118,6 @@ class OtpVerificationController extends Controller
             ]);
         }
 
-        return back()->with('status', 'A new OTP has been sent to your email.');
+        return back()->with('success', 'A new OTP has been sent to your email.');
     }
 }

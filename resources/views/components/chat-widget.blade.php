@@ -6,6 +6,7 @@
 @auth
 <div
     x-data="{
+        init() { this.panelOpen = false; },
         panelOpen: false,
         roomId: null,
         roomName: '',
@@ -91,6 +92,7 @@
                 });
         }
     }"
+    x-cloak
     class="fixed bottom-6 right-6 z-40 w-[calc(100vw-3rem)] max-w-md overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800"
 >
     <div class="flex items-center justify-between bg-indigo-600 px-4 py-3 text-sm font-semibold text-white">
