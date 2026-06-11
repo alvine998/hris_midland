@@ -6,6 +6,7 @@ use App\Models\ActivityLog;
 use App\Models\ChatRoom;
 use App\Models\Company;
 use App\Models\Department;
+use App\Models\Division;
 use App\Models\Employee;
 use App\Models\EmployeeNotification;
 use App\Models\Facility;
