@@ -7,6 +7,7 @@ use App\Http\Requests\StoreLeaveRequestRequest;
 use App\Models\Company;
 use App\Models\Department;
 use App\Models\Division;
+use App\Models\Employee;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use App\Models\Section;
@@ -75,6 +76,14 @@ class LeaveRequestController extends Controller
         ]);
     }
 
+    public function create(): View
+    {
+        return view('leave-requests.create', [
+            'leaveTypes' => LeaveType::orderBy('name')->get(),
+            'employees' => Employee::orderBy('name')->get(),
+        ]);
+    }
+
     public function store(StoreLeaveRequestRequest $request, LeaveInclusiveDayService $service): RedirectResponse
     {
         $data = $request->validated();
@@ -86,7 +95,7 @@ class LeaveRequestController extends Controller
         $leaveRequest = LeaveRequest::create($data);
         $this->logCreated($leaveRequest, 'Leave Management');
 
-        return back()->with('success', 'Leave request created successfully.');
+        return redirect()->route('leave-requests.index')->with('success', 'Leave request created successfully.');
     }
 
     public function bulkStore(StoreBulkLeaveRequestRequest $request, LeaveInclusiveDayService $service): RedirectResponse
@@ -107,7 +116,16 @@ class LeaveRequestController extends Controller
             $this->logCreated($leaveRequest, 'Leave Management');
         }
 
-        return back()->with('success', count($employeeIds).' leave request(s) created successfully.');
+        return redirect()->route('leave-requests.index')->with('success', count($employeeIds).' leave request(s) created successfully.');
+    }
+
+    public function edit(LeaveRequest $leaveRequest): View
+    {
+        return view('leave-requests.edit', [
+            'leaveRequest' => $leaveRequest,
+            'leaveTypes' => LeaveType::orderBy('name')->get(),
+            'employees' => Employee::orderBy('name')->get(),
+        ]);
     }
 
     public function update(StoreLeaveRequestRequest $request, LeaveRequest $leaveRequest, LeaveInclusiveDayService $service): RedirectResponse
@@ -122,7 +140,7 @@ class LeaveRequestController extends Controller
         $leaveRequest->update($data);
         $this->logUpdated($leaveRequest, $oldData, 'Leave Management');
 
-        return back()->with('success', 'Leave request updated successfully.');
+        return redirect()->route('leave-requests.index')->with('success', 'Leave request updated successfully.');
     }
 
     public function destroy(LeaveRequest $leaveRequest): RedirectResponse

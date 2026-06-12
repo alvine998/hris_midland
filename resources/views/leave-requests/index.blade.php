@@ -3,15 +3,15 @@
 @section('title', 'Leave Requests - ' . config('app.name'))
 
 @section('content')
-<div x-data="{ createModal: false, editModal: false, editItem: {}, deleteModal: false, deleteId: null }" class="space-y-6">
+<div x-data="{ deleteModal: false, deleteId: null }" class="space-y-6">
     <div class="flex items-center justify-between gap-4">
         <div>
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Leave Requests</h2>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Manage employee leave requests and create requests in bulk.</p>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Manage employee leave requests.</p>
         </div>
-        <button type="button" @click="createModal = true; editModal = false; editItem = { status: 'on_progress', inclusive_days: 1 }" class="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700">
-            Bulk Create
-        </button>
+        <a href="{{ route('leave-requests.create') }}" class="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700">
+            Create Leave Request
+        </a>
     </div>
 
     @session('success')
@@ -110,7 +110,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-right">
-                                <button type="button" @click="editModal = true; editItem = { id: {{ $leaveRequest->id }}, employee_id: @js($leaveRequest->employee_id), leave_type_id: @js($leaveRequest->leave_type_id), employee_delegation_id: @js($leaveRequest->employee_delegation_id), title: @js($leaveRequest->title), start_date: @js($leaveRequest->start_date->format('Y-m-d')), end_date: @js($leaveRequest->end_date->format('Y-m-d')), inclusive_days: @js($leaveRequest->inclusive_days), evidence: @js($leaveRequest->evidence ?? ''), reason: @js($leaveRequest->reason ?? ''), notes: @js($leaveRequest->notes ?? ''), status: @js($leaveRequest->status) }" class="mr-3 text-sm font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">Edit</button>
+                                <a href="{{ route('leave-requests.edit', $leaveRequest) }}" class="mr-3 text-sm font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">Edit</a>
                                 <button type="button" @click="deleteModal = true; deleteId = {{ $leaveRequest->id }}" class="text-sm font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">Delete</button>
                             </td>
                         </tr>
@@ -125,63 +125,6 @@
         @if ($leaveRequests->hasPages())
             <div class="border-t border-gray-200 px-6 py-4 dark:border-gray-700">{{ $leaveRequests->links() }}</div>
         @endif
-    </div>
-
-    <div x-show="createModal || editModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="fixed inset-0 bg-gray-900/50" @click="createModal = false; editModal = false"></div>
-        <div class="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-800">
-            <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white" x-text="editModal ? 'Edit Leave Request' : 'Bulk Create Leave Requests'"></h3>
-            <form :action="editModal ? `/leave-requests/${editItem.id}` : '{{ route('leave-requests.bulk-store') }}'" method="POST">
-                @csrf
-                <input type="hidden" name="_method" :value="editModal ? 'PUT' : 'POST'">
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <template x-if="editModal">
-                        <x-employee-async-select
-                            name="employee_id"
-                            model="editItem.employee_id"
-                            placeholder="Search employee by name, NIP, or email..."
-                            required
-                        />
-                    </template>
-                    <template x-if="! editModal">
-                        <x-employee-async-select
-                            name="employee_ids"
-                            multiple
-                            placeholder="Search and add employees..."
-                            required
-                        />
-                    </template>
-                    <select name="leave_type_id" x-model="editItem.leave_type_id" class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                        <option value="">Leave type...</option>
-                        @foreach ($leaveTypes as $leaveType)
-                            <option value="{{ $leaveType->id }}">{{ $leaveType->name }}</option>
-                        @endforeach
-                    </select>
-                    <input type="text" name="title" x-model="editItem.title" required placeholder="Title" class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                    <x-employee-async-select
-                        name="employee_delegation_id"
-                        model="editItem.employee_delegation_id"
-                        placeholder="Search delegated employee..."
-                    />
-                    <input type="date" name="start_date" x-model="editItem.start_date" required class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                    <input type="date" name="end_date" x-model="editItem.end_date" required class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                    <input type="number" name="inclusive_days" x-model="editItem.inclusive_days" min="0" required placeholder="Inclusive days" class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                    <select name="status" x-model="editItem.status" required class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                        <option value="on_progress">On Progress</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
-                        <option value="cancelled">Cancelled</option>
-                    </select>
-                    <input type="text" name="evidence" x-model="editItem.evidence" placeholder="Evidence file path" class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                    <textarea name="reason" x-model="editItem.reason" rows="3" placeholder="Reason" class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white md:col-span-2"></textarea>
-                    <textarea name="notes" x-model="editItem.notes" rows="3" placeholder="Notes" class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white md:col-span-2"></textarea>
-                </div>
-                <div class="mt-6 flex justify-end gap-3">
-                    <button type="button" @click="createModal = false; editModal = false" class="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">Cancel</button>
-                    <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700" x-text="editModal ? 'Update' : 'Create Requests'"></button>
-                </div>
-            </form>
-        </div>
     </div>
 
     <div x-show="deleteModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">

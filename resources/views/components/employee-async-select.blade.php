@@ -161,11 +161,11 @@
                 class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             >
 
-            <template x-if="! multiple && selected.length">
+            <!-- <template x-if="! multiple && selected.length">
                 <button type="button" @click="remove(selected[0])" class="absolute right-2 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
                     Clear
                 </button>
-            </template>
+            </template> -->
         </div>
     </div>
 

@@ -53,6 +53,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             UserRoleSeeder::class,
+            EmployeeTaskSeeder::class,
         ]);
     }
 }

@@ -175,12 +175,27 @@ class ReferenceController extends Controller
         ]);
     }
 
+    public function createRole(): View
+    {
+        return view('master-data.roles.create', [
+            'permissionGroups' => RbacPermissionService::groups(),
+        ]);
+    }
+
     public function storeRole(StoreRoleRequest $request): RedirectResponse
     {
         $role = Role::create($request->validated());
         $this->logCreated($role);
 
         return redirect()->route('master-data.roles')->with('success', 'Role created successfully.');
+    }
+
+    public function editRole(Role $role): View
+    {
+        return view('master-data.roles.edit', [
+            'role' => $role,
+            'permissionGroups' => RbacPermissionService::groups(),
+        ]);
     }
 
     public function updateRole(StoreRoleRequest $request, Role $role): RedirectResponse

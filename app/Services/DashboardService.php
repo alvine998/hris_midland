@@ -6,7 +6,9 @@ use App\Models\Attendance;
 use App\Models\Contract;
 use App\Models\Department;
 use App\Models\Employee;
+use App\Models\EmployeeTask;
 use App\Models\LeaveBalance;
+use App\Models\User;
 use App\Models\WorkLocation;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -17,6 +19,7 @@ class DashboardService
     {
         $today = Carbon::today();
         $nextThirtyDays = $today->copy()->addDays(30);
+        $user = auth()->user();
 
         $totalEmployees = Employee::count();
         $activeEmployees = Employee::where('status', 'active')->count();
@@ -45,7 +48,31 @@ class DashboardService
                 ->latest()
                 ->limit(4)
                 ->get(),
+            'dashboardTasks' => $this->dashboardTasks($user),
+            'canManageDashboardTasks' => $this->canManageTasks($user),
         ];
+    }
+
+    private function dashboardTasks(?User $user): Collection
+    {
+        if (! $user) {
+            return collect();
+        }
+
+        return EmployeeTask::query()
+            ->with(['employee.department', 'assignedBy'])
+            ->when(! $this->canManageTasks($user), fn ($query) => $query->where('employee_id', $user->employee_id ?? 0))
+            ->whereIn('status', ['pending', 'in_progress', 'completed'])
+            ->orderByRaw("case when status = 'completed' then 1 else 0 end")
+            ->orderBy('period_end')
+            ->latest()
+            ->limit(8)
+            ->get();
+    }
+
+    private function canManageTasks(?User $user): bool
+    {
+        return $user?->hasPermission('*') || $user?->hasPermission('task.assign') || $user?->hasPermission('task.manage');
     }
 
     private function departmentEmployees(): array

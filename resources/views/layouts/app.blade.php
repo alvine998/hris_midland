@@ -8,43 +8,13 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script>if(localStorage.getItem('darkMode')==='true'){document.documentElement.classList.add('dark');}</script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>[x-cloak]{display:none!important;}.page-fade{animation:pageFadeIn .18s ease both;}@keyframes pageFadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}</style>
     @stack('head')
 </head>
 <body class="font-sans antialiased text-gray-900 bg-gray-50 dark:text-gray-100 dark:bg-gray-900 overflow-x-hidden">
 
-    <div
-        x-data="{
-            loading: false,
-            progress: 0,
-            interval: null,
-            init() {
-                this.finish();
-                document.addEventListener('click', (e) => {
-                    let link = e.target.closest('a');
-                    if (!link || link.target === '_blank' || link.hostname !== window.location.hostname || link.hasAttribute('download') || link.getAttribute('href') === '#' || e.metaKey || e.ctrlKey || e.shiftKey) return;
-                    this.start();
-                });
-            },
-            start() {
-                this.loading = true;
-                this.progress = 20;
-                clearInterval(this.interval);
-                this.interval = setInterval(() => {
-                    this.progress = Math.min(this.progress + (100 - this.progress) * 0.06, 85);
-                }, 120);
-            },
-            finish() {
-                this.loading = false;
-                this.progress = 0;
-                clearInterval(this.interval);
-            }
-        }"
-        class="fixed top-0 left-0 right-0 z-[60] h-0.5 bg-indigo-500/30 transition-opacity duration-300 opacity-0"
-        :class="loading ? 'opacity-100' : 'opacity-0'"
-    >
-        <div class="h-full w-full origin-left bg-indigo-600 transition-transform duration-[80ms] ease-linear" :style="`transform: scaleX(${progress / 100})`"></div>
-    </div>
 
     <x-toasts />
 
@@ -111,6 +81,20 @@
                     </div>
                 </div>
 
+                {{-- Tasks Group --}}
+                <div x-data="{ open: localStorage.getItem('sidebar_group_tasks') === 'true' }">
+                    <button @click="open = !open; localStorage.setItem('sidebar_group_tasks', open)" class="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                        <span>Tasks</span>
+                        <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div x-cloak x-show="open" x-collapse>
+                        <a href="{{ route('employee-tasks.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 8l2 2 4-4"/></svg>
+                            Employee Tasks
+                        </a>
+                    </div>
+                </div>
+
                 {{-- Leave Management Group --}}
                 <div x-data="{ open: localStorage.getItem('sidebar_group_leave_management') === 'true' }">
                     <button @click="open = !open; localStorage.setItem('sidebar_group_leave_management', open)" class="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
@@ -126,7 +110,7 @@
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5l5 5v11a2 2 0 01-2 2z"/></svg>
                             Leave Types
                         </a>
-                        <a href="{{ route('admin-crud.index', 'leave-settings') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+                        <a href="{{ route('leave-settings.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3M5 12h2m10 0h2M12 5v2m0 10v2"/></svg>
                             Leave Settings
                         </a>
@@ -218,7 +202,7 @@
                 </div>
 
                 {{-- Communication Group --}}
-                <div x-data="{ open: localStorage.getItem('sidebar_group_communication') === 'true' }">
+                <!-- <div x-data="{ open: localStorage.getItem('sidebar_group_communication') === 'true' }">
                     <button @click="open = !open; localStorage.setItem('sidebar_group_communication', open)" class="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                         <span>Communication</span>
                         <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -227,7 +211,7 @@
                         <a href="{{ route('admin-crud.index', 'notifications') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">Notifications</a>
                         <a href="{{ route('communication.chats.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">Chats</a>
                     </div>
-                </div>
+                </div> -->
 
                 {{-- Attendance Group --}}
                 <div x-data="{ open: localStorage.getItem('sidebar_group_attendance') === 'true' }">
@@ -535,7 +519,7 @@
             </header>
 
             {{-- Main content --}}
-            <main class="flex-1 min-w-0 max-w-full overflow-x-hidden p-4 lg:p-6">
+            <main class="flex-1 min-w-0 max-w-full overflow-x-hidden p-4 lg:p-6 page-fade">
                 @yield('content')
             </main>
 

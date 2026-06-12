@@ -8,71 +8,10 @@
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Roles</h2>
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Manage user roles and permissions.</p>
     </div>
-    <div x-data="{ open: false, edit: false, item: { rbac: [] } }">
-        <button @click="open = true; edit = false; item = { rbac: [] }" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl transition-colors shadow-sm">
-            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            Add New
-        </button>
-
-        <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.away="open = false">
-            <div class="fixed inset-0 bg-gray-900/50" @click="open = false"></div>
-            <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white" x-text="edit ? 'Edit Role' : 'Add Role'"></h3>
-                    <button @click="open = false" class="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                </div>
-                <form method="POST" :action="edit ? `/master-data/roles/${item.id}` : '{{ route('master-data.roles.store') }}'">
-                    @csrf
-                    <template x-if="edit">
-                        @method('PUT')
-                    </template>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
-                            <input type="text" name="name" x-model="item.name" required placeholder="Role name" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-                            <textarea name="description" x-model="item.description" rows="3" placeholder="Brief description" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-                        </div>
-                        <div>
-                            <div class="flex items-center justify-between gap-3 mb-3">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">RBAC Permissions</label>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">Select the actions allowed for this role.</p>
-                                </div>
-                                <button type="button" @click="item.rbac = ['*']" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">Full Access</button>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                @foreach ($permissionGroups as $group => $permissions)
-                                    <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-                                        <p class="text-sm font-semibold text-gray-900 dark:text-white mb-3">{{ $group }}</p>
-                                        <div class="space-y-2">
-                                            @foreach ($permissions as $permission => $label)
-                                                <label class="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
-                                                    <input type="checkbox" name="rbac[]" value="{{ $permission }}" x-model="item.rbac" class="mt-1 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                                                    <span>
-                                                        <span class="block font-medium">{{ $label }}</span>
-                                                        <span class="block text-xs text-gray-500 dark:text-gray-400">{{ $permission }}</span>
-                                                    </span>
-                                                </label>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex justify-end gap-3 mt-6">
-                        <button type="button" @click="open = false" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">Cancel</button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700" x-text="edit ? 'Update' : 'Save'"></button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    <a href="{{ route('master-data.roles.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl transition-colors shadow-sm">
+        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Add New
+    </a>
 </div>
 
 @session('success')
@@ -109,67 +48,10 @@
                         </div>
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <div x-data="{ open: false, edit: false, item: {} }" class="inline-flex items-center gap-1">
-                            <button @click="open = true; edit = true; item = { id: {{ $role->id }}, name: @json($role->name), description: @json($role->description), rbac: @json($role->rbac ?? []) }" class="p-1.5 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors">
+                        <div class="inline-flex items-center gap-1">
+                            <a href="{{ route('master-data.roles.edit', $role) }}" class="p-1.5 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                            </button>
-
-                            <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.away="open = false">
-                                <div class="fixed inset-0 bg-gray-900/50" @click="open = false"></div>
-                                <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Edit Role</h3>
-                                        <button @click="open = false" class="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                                        </button>
-                                    </div>
-                                    <form method="POST" :action="`/master-data/roles/${item.id}`">
-                                        @csrf
-                                        @method('PUT')
-                                        <div class="space-y-4">
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
-                                                <input type="text" name="name" x-model="item.name" required placeholder="Role name" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-                                                <textarea name="description" x-model="item.description" rows="3" placeholder="Brief description" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-                                            </div>
-                                            <div>
-                                                <div class="flex items-center justify-between gap-3 mb-3">
-                                                    <div>
-                                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">RBAC Permissions</label>
-                                                        <p class="text-xs text-gray-500 dark:text-gray-400">Select the actions allowed for this role.</p>
-                                                    </div>
-                                                    <button type="button" @click="item.rbac = ['*']" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">Full Access</button>
-                                                </div>
-                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                    @foreach ($permissionGroups as $group => $permissions)
-                                                        <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-                                                            <p class="text-sm font-semibold text-gray-900 dark:text-white mb-3">{{ $group }}</p>
-                                                            <div class="space-y-2">
-                                                                @foreach ($permissions as $permission => $label)
-                                                                    <label class="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
-                                                                        <input type="checkbox" name="rbac[]" value="{{ $permission }}" x-model="item.rbac" class="mt-1 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                                                                        <span>
-                                                                            <span class="block font-medium">{{ $label }}</span>
-                                                                            <span class="block text-xs text-gray-500 dark:text-gray-400">{{ $permission }}</span>
-                                                                        </span>
-                                                                    </label>
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="flex justify-end gap-3 mt-6">
-                                            <button type="button" @click="open = false" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">Cancel</button>
-                                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">Update</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
+                            </a>
 
                             <div x-data="{ show: false, id: null }">
                                 <button @click="show = true; id = {{ $role->id }}" class="p-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">

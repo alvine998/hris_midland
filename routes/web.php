@@ -16,12 +16,14 @@ use App\Http\Controllers\EducationHistoryController;
 use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeShiftController;
+use App\Http\Controllers\EmployeeTaskController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\Feedback360Controller;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\LeaveApprovalController;
 use App\Http\Controllers\LeaveRequestController;
+use App\Http\Controllers\LeaveSettingsController;
 use App\Http\Controllers\LeaveTypeController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\PerformanceReportController;
@@ -86,10 +88,17 @@ Route::middleware('auth')->group(function () {
     Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
 
     Route::get('/leave-requests', [LeaveRequestController::class, 'index'])->name('leave-requests.index');
+    Route::get('/leave-requests/create', [LeaveRequestController::class, 'create'])->name('leave-requests.create');
     Route::post('/leave-requests', [LeaveRequestController::class, 'store'])->name('leave-requests.store');
     Route::post('/leave-requests/bulk', [LeaveRequestController::class, 'bulkStore'])->name('leave-requests.bulk-store');
+    Route::get('/leave-requests/{leaveRequest}/edit', [LeaveRequestController::class, 'edit'])->name('leave-requests.edit');
     Route::put('/leave-requests/{leaveRequest}', [LeaveRequestController::class, 'update'])->name('leave-requests.update');
     Route::delete('/leave-requests/{leaveRequest}', [LeaveRequestController::class, 'destroy'])->name('leave-requests.destroy');
+
+    Route::get('/leave-settings', [LeaveSettingsController::class, 'index'])->name('leave-settings.index');
+    Route::post('/leave-settings', [LeaveSettingsController::class, 'store'])->name('leave-settings.store');
+    Route::put('/leave-settings/{leaveSetting}', [LeaveSettingsController::class, 'update'])->name('leave-settings.update');
+    Route::delete('/leave-settings/{leaveSetting}', [LeaveSettingsController::class, 'destroy'])->name('leave-settings.destroy');
 
     Route::post('/leave-approvals', [LeaveApprovalController::class, 'store'])->name('leave-approvals.store');
     Route::put('/leave-approvals/{leaveApproval}', [LeaveApprovalController::class, 'update'])->name('leave-approvals.update');
@@ -140,6 +149,15 @@ Route::middleware('auth')->group(function () {
     Route::put('/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
     Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
 
+    Route::get('/employee-tasks', [EmployeeTaskController::class, 'index'])->name('employee-tasks.index');
+    Route::get('/employee-tasks/create', [EmployeeTaskController::class, 'create'])->name('employee-tasks.create');
+    Route::post('/employee-tasks', [EmployeeTaskController::class, 'store'])->name('employee-tasks.store');
+    Route::get('/employee-tasks/{employeeTask}/edit', [EmployeeTaskController::class, 'edit'])->name('employee-tasks.edit');
+    Route::put('/employee-tasks/{employeeTask}', [EmployeeTaskController::class, 'update'])->name('employee-tasks.update');
+    Route::patch('/employee-tasks/{employeeTask}/complete', [EmployeeTaskController::class, 'complete'])->name('employee-tasks.complete');
+    Route::patch('/employee-tasks/{employeeTask}/reopen', [EmployeeTaskController::class, 'reopen'])->name('employee-tasks.reopen');
+    Route::delete('/employee-tasks/{employeeTask}', [EmployeeTaskController::class, 'destroy'])->name('employee-tasks.destroy');
+
     Route::get('/master-data/companies', [OrganizationController::class, 'companies'])->name('master-data.companies');
     Route::get('/master-data/work-locations', [OrganizationController::class, 'workLocations'])->name('master-data.work-locations');
     Route::get('/master-data/departments', [OrganizationController::class, 'departments'])->name('master-data.departments');
@@ -171,6 +189,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/master-data/job-positions', [ReferenceController::class, 'jobPositions'])->name('master-data.job-positions');
     Route::get('/master-data/modules', [ReferenceController::class, 'modules'])->name('master-data.modules');
     Route::get('/master-data/roles', [ReferenceController::class, 'roles'])->name('master-data.roles');
+    Route::get('/master-data/roles/create', [ReferenceController::class, 'createRole'])->name('master-data.roles.create');
+    Route::get('/master-data/roles/{role}/edit', [ReferenceController::class, 'editRole'])->name('master-data.roles.edit');
     Route::get('/master-data/contract-types', [ReferenceController::class, 'contractTypes'])->name('master-data.contract-types');
     Route::get('/master-data/education-types', [ReferenceController::class, 'educationTypes'])->name('master-data.education-types');
     Route::get('/master-data/family-types', [ReferenceController::class, 'familyTypes'])->name('master-data.family-types');
