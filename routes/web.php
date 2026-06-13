@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminCrudController;
 use App\Http\Controllers\ApprovalWorkflowController;
+use App\Http\Controllers\AttendanceCheckInController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
@@ -112,6 +113,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/attendances/export', [AttendanceController::class, 'export'])->name('attendances.export');
     Route::get('/attendances/template', [AttendanceController::class, 'template'])->name('attendances.template');
     Route::post('/attendances/import', [AttendanceController::class, 'import'])->name('attendances.import');
+
+    Route::get('/attendances/check-in', [AttendanceCheckInController::class, 'create'])->name('attendances.check-in');
+    Route::post('/attendances/check-in', [AttendanceCheckInController::class, 'store'])->name('attendances.check-in.store');
+    Route::get('/attendances/check-in/history', [AttendanceCheckInController::class, 'history'])->name('attendances.check-in.history');
 
     Route::get('/employee-options', [AdminCrudController::class, 'employeeOptions'])->name('employee-options.index');
     Route::get('/admin-crud/{resource}', [AdminCrudController::class, 'index'])->name('admin-crud.index');

@@ -20,7 +20,7 @@
 @endif
 
 {{-- Metric Cards --}}
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6 mb-8">
     {{-- Total Employees --}}
     <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-shadow">
         <div class="flex items-center justify-between mb-4">
@@ -76,6 +76,20 @@
         <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ number_format($metrics['expiringContracts']) }}</p>
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Expiring Contracts</p>
     </div>
+
+    {{-- Recruitment --}}
+    <a href="https://kerjajadulu.com" target="_blank" class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-shadow hover:border-indigo-300 dark:hover:border-indigo-700 group">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-10 h-10 bg-cyan-100 dark:bg-cyan-900/50 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg class="w-5 h-5 text-cyan-600 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+            <span class="text-xs font-medium text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-900/30 px-2.5 py-1 rounded-full group-hover:bg-cyan-100 dark:group-hover:bg-cyan-900/50 transition-colors">External</span>
+        </div>
+        <p class="text-3xl font-bold text-gray-900 dark:text-white">Recruitment</p>
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">kerjajadulu.com</p>
+    </a>
 </div>
 
 {{-- Tasks --}}

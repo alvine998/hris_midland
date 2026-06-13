@@ -15,7 +15,15 @@ class SecurityHeaders
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
-        $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+        $path = $request->path();
+
+        $cameraAndGeo = str_starts_with($path, 'attendances/check-in');
+
+        if ($cameraAndGeo) {
+            $response->headers->set('Permissions-Policy', 'camera=(self), microphone=(), geolocation=(self)');
+        } else {
+            $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+        }
 
         if ($request->isSecure()) {
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
