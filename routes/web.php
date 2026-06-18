@@ -34,10 +34,14 @@ use App\Http\Controllers\RelationshipController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\UserRoleController;
+use App\Http\Controllers\WhatsAppWebhookController;
 use App\Http\Controllers\WorkHistoryController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingPageController::class, 'index'])->name('landing');
+
+// WhatsApp Webhook (public endpoint - no auth)
+Route::any('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'handle']);
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
