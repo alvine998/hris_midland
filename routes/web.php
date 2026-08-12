@@ -26,6 +26,7 @@ use App\Http\Controllers\LeaveApprovalController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\LeaveSettingsController;
 use App\Http\Controllers\LeaveTypeController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\PerformanceReportController;
 use App\Http\Controllers\ProfileController;
@@ -33,12 +34,20 @@ use App\Http\Controllers\ReferenceController;
 use App\Http\Controllers\RelationshipController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserRoleController;
 use App\Http\Controllers\WhatsAppWebhookController;
 use App\Http\Controllers\WorkHistoryController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingPageController::class, 'index'])->name('landing');
+Route::get('/order/{package:slug}', [OrderController::class, 'create'])->name('orders.create');
+Route::post('/order/{package:slug}', [OrderController::class, 'store'])->name('orders.store');
+Route::get('/order-success/{orderCode}', [OrderController::class, 'success'])->name('orders.success');
+Route::get('/order/{orderCode}/upload-proof', [OrderController::class, 'showUploadProof'])->name('orders.upload-proof');
+Route::post('/order/{orderCode}/upload-proof', [OrderController::class, 'uploadProof'])->name('orders.upload-proof.store');
+Route::get('/support', [TicketController::class, 'create'])->name('tickets.create');
+Route::post('/support', [TicketController::class, 'store'])->name('tickets.store');
 
 // WhatsApp Webhook (public endpoint - no auth)
 Route::any('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'handle']);

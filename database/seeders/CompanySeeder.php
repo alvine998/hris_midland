@@ -10,8 +10,8 @@ class CompanySeeder extends Seeder
     public function run(): void
     {
         Company::create([
-            'name' => 'Midland Corporation',
-            'email' => 'info@midlandcorp.com',
+            'name' => 'Targetin Corporation',
+            'email' => 'info@targetin.com',
             'phone' => '021-5550199',
             'address' => 'Jl. Sudirman No. 1, Jakarta Pusat',
             'status' => 'active',

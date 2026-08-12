@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
+use App\Models\BankAccount;
 use App\Models\ChatRoom;
 use App\Models\Company;
 use App\Models\Department;
@@ -139,6 +140,20 @@ class AdminCrudController extends Controller
     private function config(string $resource): array
     {
         $configs = [
+            'bank-accounts' => [
+                'title' => 'Bank Accounts',
+                'singular' => 'Bank account',
+                'model' => BankAccount::class,
+                'search' => ['bank_name', 'account_number', 'account_holder'],
+                'columns' => ['bank_name' => 'Bank', 'account_number' => 'Account No', 'account_holder' => 'Holder', 'is_active' => 'Active'],
+                'fields' => [
+                    ['name' => 'bank_name', 'label' => 'Bank Name', 'type' => 'text'],
+                    ['name' => 'account_number', 'label' => 'Account Number', 'type' => 'text'],
+                    ['name' => 'account_holder', 'label' => 'Account Holder', 'type' => 'text'],
+                    ['name' => 'is_active', 'label' => 'Active', 'type' => 'checkbox'],
+                ],
+                'rules' => ['bank_name' => ['required', 'string', 'max:255'], 'account_number' => ['required', 'string', 'max:100'], 'account_holder' => ['required', 'string', 'max:255'], 'is_active' => ['boolean']],
+            ],
             'leave-settings' => [
                 'title' => 'Leave Settings',
                 'singular' => 'Leave setting',

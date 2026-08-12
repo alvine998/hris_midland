@@ -351,6 +351,9 @@
                         <a href="{{ route('admin-crud.index', 'login-attempts') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
                             Login Attempts
                         </a>
+                        <a href="{{ route('admin-crud.index', 'bank-accounts') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+                            Bank Accounts
+                        </a>
                     </div>
                 </div>
             </nav>

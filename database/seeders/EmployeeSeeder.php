@@ -13,7 +13,7 @@ class EmployeeSeeder extends Seeder
             'nip' => 'EMP-001',
             'nik' => '3273010101990001',
             'name' => 'Budi Santoso',
-            'email' => 'budi@midlandcorp.com',
+            'email' => 'budi@targetin.com',
             'phone' => '0812-3456-7890',
             'address' => 'Jl. Merdeka No. 10, Jakarta',
             'birth_place' => 'Jakarta',

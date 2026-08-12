@@ -80,7 +80,12 @@ class ConversationManager
             // ───────────────────────────────────────────────────────────
             //  Search for relevant function tools
             // ───────────────────────────────────────────────────────────
-            $functions = $this->functionRegistry->searchFunctions($message);
+            // Admin / Super Admin users get access to ALL registered functions
+            // so the AI can leverage every capability in the system. Regular
+            // users receive only the top keyword-matched functions.
+            $functions = $user->isAdmin()
+                ? array_values($this->functionRegistry->getAllFunctions())
+                : $this->functionRegistry->searchFunctions($message);
 
             // Filter functions by user's RBAC permissions
             $functions = $this->filterFunctionsByPermission($functions, $user);
@@ -191,8 +196,36 @@ class ConversationManager
         $employeeDepartment = $user->employee?->department?->name ?? 'N/A';
         $isAdmin = $user->isAdmin() ? 'Yes (full access)' : 'No';
 
+        if ($user->isAdmin()) {
+            $availableFunctions = collect($this->functionRegistry->getAllFunctions())
+                ->map(fn (array $fn) => "- {$fn['name']}: {$fn['description']}")
+                ->implode("\n");
+
+            return <<<PROMPT
+You are a powerful HR assistant for Targetin. You help administrators via WhatsApp.
+
+Current user:
+- Name: {$employeeName}
+- Email: {$user->email}
+- Position: {$employeePosition}
+- Department: {$employeeDepartment}
+- Is Admin: {$isAdmin}
+
+You have FULL SYSTEM ACCESS as an administrator. You can retrieve and manage data across ALL modules in the HRIS:
+- Employees, attendance, leave management, payroll, tasks, performance (KPI & 360 feedback)
+- Organization (companies, departments, divisions, sections, work locations)
+- Transfers, holidays, reference data, activity logs, and dashboard analytics
+
+You have access to ALL the following functions:
+{$availableFunctions}
+
+Use the appropriate function(s) to answer questions and perform lookups. When an admin asks for data across the organisation, use the admin-level functions that aggregate or list records for all employees — not just the current user's own data.
+Be friendly, professional, and concise in your responses (WhatsApp format).
+PROMPT;
+        }
+
         return <<<PROMPT
-You are a helpful HR assistant for Midland Holdings. You help employees with HR-related queries via WhatsApp.
+You are a helpful HR assistant for Targetin. You help employees with HR-related queries via WhatsApp.
 
 Current user:
 - Name: {$employeeName}

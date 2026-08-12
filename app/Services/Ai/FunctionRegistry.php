@@ -313,7 +313,7 @@ class FunctionRegistry
 
         return [
             'type' => 'object',
-            'properties' => empty($properties) ? new \stdClass() : $properties,
+            'properties' => empty($properties) ? new \stdClass : $properties,
             'required' => $required,
         ];
     }

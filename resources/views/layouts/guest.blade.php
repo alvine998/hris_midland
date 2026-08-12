@@ -18,9 +18,13 @@
 
     @yield('content')
 
-    <footer class="py-6 text-center text-sm text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800 mt-auto">
-        &copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
-    </footer>
+    @hasSection('footer')
+        @yield('footer')
+    @else
+        <footer class="py-6 text-center text-sm text-stone-500 dark:text-stone-400 border-t border-stone-200 dark:border-stone-800 mt-auto">
+            &copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
+        </footer>
+    @endif
 
     @stack('scripts')
 </body>

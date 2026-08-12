@@ -3,6 +3,7 @@
 namespace App\Services\Ai\Functions;
 
 use App\Models\Attendance;
+use App\Models\User;
 use App\Services\Ai\Attributes\WAFunction;
 use App\Services\Ai\Attributes\WAFunctionParam;
 use Illuminate\Support\Carbon;
@@ -12,9 +13,10 @@ class GetTodayAttendanceSummary
     #[WAFunction(
         name: 'get_today_attendance_summary',
         description: 'Get today attendance summary for all employees. Shows who is present, absent, late, or on leave.',
-        permission: 'attendances.view'
+        permission: 'attendance.view'
     )]
     public function execute(
+        User $user,
         #[WAFunctionParam(name: 'date', type: 'string', description: 'Date in YYYY-MM-DD format. Defaults to today.', required: false)]
         ?string $date = null,
     ): array {

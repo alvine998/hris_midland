@@ -1,0 +1,28 @@
+# User Taste Profile
+- Works in Laravel with Blade templates, Alpine.js, and Tailwind CSS (dark mode). Confidence: 0.95
+- Builds an HRIS (Human Resource Information System) with RBAC permissions. Confidence: 0.95
+- Gives extremely brief, direct commands — often one line with no elaboration. Confidence: 0.9
+- Provides database schema as plain-text `Table { ... }` blocks when requesting new features/migrations. Confidence: 0.9
+- Frequently requests multiple parallel agents to work on distinct sub-tasks simultaneously (e.g., "do with 10 agents", "do with 5 agents"). Confidence: 0.9
+- Expects agent tasks to be self-contained with clear ownership boundaries ("Do not edit controllers/routes/models", "Report changed files and verification"). Confidence: 0.9
+- Groups related features into a single large request with numbered sub-items rather than separate prompts. Confidence: 0.85
+- Iterates heavily on UI/UX — gives short follow-up fixes like "fix the UI/UX I don't like that", "fix in the bottom of dashboard". Confidence: 0.9
+- Repeats the same request multiple times across batches when not satisfied or unsure if it was addressed. Confidence: 0.85
+- Prefers dedicated pages over modals for CRUD create/update forms. Confidence: 0.85
+- Wants sidebar menu items logically grouped (e.g., Leave Management with Leave Request, Reports group, Communication group). Confidence: 0.9
+- Expects RBAC/permissions module to be updated every time a new feature is added. Confidence: 0.95
+- Prefers reusable utilities over inline code (e.g., activity logging as a shared utility applied to all CRUD). Confidence: 0.85
+- Wants all input fields to have placeholder text. Confidence: 0.9
+- Prefers card-based layouts for lists (e.g., dashboard task cards). Confidence: 0.8
+- Expects floating UI elements (e.g., chat widget button at bottom-right). Confidence: 0.85
+- Wants search/filter controls on every list/index page. Confidence: 0.9
+- Dark mode must be supported across all new UI. Confidence: 0.85
+- Notification dropdown should show ~5 items with a "View All" link, not the full list. Confidence: 0.9
+- Dropdown widths should be adequate (not too narrow — user complained about 150px). Confidence: 0.8
+- Wants seed/sample data for new features (e.g., "seed 5 examples for notification"). Confidence: 0.85
+- Prefers status toggling with undo capability (e.g., task check/uncheck). Confidence: 0.8
+- Expects file upload support with evidence/attachments (e.g., task completion evidence). Confidence: 0.8
+- Wants Excel export/import with downloadable templates for bulk data operations. Confidence: 0.85
+- Expects activity/audit logging across all CRUD operations. Confidence: 0.9
+- Prefers OTP flow with auto-advance inputs and persistent resend cooldown across page refreshes. Confidence: 0.85
+- Expects internal developer notes/commentary to never appear in customer-facing views — all copy should be end-user appropriate. Confidence: 0.75

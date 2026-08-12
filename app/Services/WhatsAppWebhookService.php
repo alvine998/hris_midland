@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Services\Ai\ConversationManager;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -262,7 +263,7 @@ class WhatsAppWebhookService
             ]);
 
             return $response->json();
-        } catch (\Illuminate\Http\Client\RequestException $e) {
+        } catch (RequestException $e) {
             Log::error('WhatsApp API request failed', [
                 'to' => $to,
                 'status' => $e->response->status(),

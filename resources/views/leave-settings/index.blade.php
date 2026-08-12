@@ -68,9 +68,9 @@
         </div>
     </div>
 
-    <div x-show="showModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="fixed inset-0 bg-gray-900/50" @click="showModal = false"></div>
-        <div class="relative w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-800">
+    <div x-show="showModal" x-cloak class="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+        <div class="fixed inset-0 z-[9998] bg-gray-900/50" @click="showModal = false"></div>
+        <div class="relative z-[9999] max-h-[150px] w-full max-w-lg overflow-y-auto rounded-2xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-800">
             <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white" x-text="editMode ? 'Edit Leave Setting' : 'Add Leave Setting'"></h3>
             <form :action="editMode ? `/leave-settings/${editItem}` : '{{ route('leave-settings.store') }}'" method="POST" class="space-y-4">
                 @csrf
