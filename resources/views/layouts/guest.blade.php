@@ -10,10 +10,25 @@
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
+    <script>if(localStorage.getItem('darkMode')==='true'){document.documentElement.classList.add('dark');}</script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>[x-cloak]{display:none!important;}</style>
     @stack('head')
 </head>
-<body class="font-sans antialiased text-gray-900 bg-gray-50 dark:text-gray-100 dark:bg-gray-900 min-h-screen flex flex-col">
+<body
+    x-data="{
+        darkMode: localStorage.getItem('darkMode') === 'true',
+        init() {
+            if (this.darkMode) document.documentElement.classList.add('dark');
+            this.$watch('darkMode', (val) => {
+                localStorage.setItem('darkMode', val);
+                document.documentElement.classList.toggle('dark', val);
+            });
+        },
+        toggleDark() { this.darkMode = !this.darkMode; }
+    }"
+    class="font-sans antialiased text-gray-900 bg-white dark:text-gray-100 dark:bg-gray-950 min-h-screen flex flex-col overflow-x-hidden"
+>
     <x-toasts />
 
     @yield('content')

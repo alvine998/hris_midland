@@ -158,7 +158,7 @@
                     </div>
 
                     <div class="flex gap-2 border-t border-gray-200 p-3 dark:border-gray-700">
-                        <input type="text" x-model="text" @keydown.enter.prevent="send()" :disabled="!roomId" class="min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:disabled:bg-gray-900" placeholder="Type message...">
+                        <textarea x-model="text" @keydown.enter.prevent="if (!$event.shiftKey) { send(); return; }" @input="el => { el.target.style.height = 'auto'; el.target.style.height = el.target.scrollHeight + 'px'; }" :disabled="!roomId" rows="1" class="min-w-0 flex-1 resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:disabled:bg-gray-900" placeholder="Type message... (Shift+Enter for newline)"></textarea>
                         <button type="button" @click="send()" :disabled="!roomId" class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white disabled:opacity-50">Send</button>
                     </div>
                 </div>

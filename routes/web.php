@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminCrudController;
+use App\Http\Controllers\AiChatController;
 use App\Http\Controllers\ApprovalWorkflowController;
 use App\Http\Controllers\AttendanceCheckInController;
 use App\Http\Controllers\AttendanceController;
@@ -33,6 +34,7 @@ use App\Http\Controllers\ReferenceController;
 use App\Http\Controllers\RelationshipController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\SuperAdminOverviewController;
 use App\Http\Controllers\UserRoleController;
 use App\Http\Controllers\WhatsAppWebhookController;
 use App\Http\Controllers\WorkHistoryController;
@@ -60,6 +62,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/admin/overview', [SuperAdminOverviewController::class, 'index'])->name('admin.overview');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
@@ -137,6 +140,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/communication/chats', [ChatController::class, 'store'])->name('communication.chats.store');
     Route::get('/communication/chats/{chat}/messages', [ChatController::class, 'messages'])->name('communication.chats.messages');
     Route::post('/communication/chats/{chat}/messages', [ChatController::class, 'send'])->name('communication.chats.send');
+
+    Route::get('/ai-chat', [AiChatController::class, 'index'])->name('ai-chat.index');
+    Route::post('/ai-chat/sessions', [AiChatController::class, 'storeSession'])->name('ai-chat.sessions.store');
+    Route::get('/ai-chat/sessions/{session}/messages', [AiChatController::class, 'messages'])->name('ai-chat.sessions.messages');
+    Route::post('/ai-chat/sessions/{session}/messages', [AiChatController::class, 'send'])->name('ai-chat.sessions.send');
+    Route::post('/ai-chat/sessions/{session}/stream', [AiChatController::class, 'stream'])->name('ai-chat.sessions.stream');
+    Route::patch('/ai-chat/sessions/{session}', [AiChatController::class, 'updateSession'])->name('ai-chat.sessions.update');
+    Route::delete('/ai-chat/sessions/{session}/last-assistant', [AiChatController::class, 'destroyLastAssistant'])->name('ai-chat.sessions.last-assistant.destroy');
+    Route::delete('/ai-chat/sessions/{session}', [AiChatController::class, 'destroySession'])->name('ai-chat.sessions.destroy');
 
     Route::middleware('permission:*')->group(function () {
         Route::get('/user-roles', [UserRoleController::class, 'index'])->name('user-roles.index');

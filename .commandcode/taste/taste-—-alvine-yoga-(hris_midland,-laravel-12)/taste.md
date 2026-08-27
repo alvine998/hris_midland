@@ -1,0 +1,16 @@
+# Taste — Alvine Yoga (hris_midland, Laravel 12)
+- Prefers modern, polished web UI with smooth scroll and tasteful parallax effects (e.g. Lenis, layered backgrounds, blurred orbs, reveal-on-scroll animations). Confidence: 0.85
+- Prefers Tailwind CSS utility-first styling for new pages (already in stack via Laravel 12). Confidence: 0.9
+- Likes gradient text accents (e.g. `bg-clip-text` with indigo→purple) for hero headings and stat numbers. Confidence: 0.7
+- Likes decorative background layers: blurred orbs, radial gradient blobs, subtle grid patterns with radial masks. Confidence: 0.75
+- Prefers rounded, soft-cornered UI: `rounded-2xl` / `rounded-xl` on cards and buttons. Confidence: 0.7
+- Values accessibility — wants `prefers-reduced-motion: reduce` respected for any scroll/animation effect. Confidence: 0.85
+- Prefers planning before implementing non-trivial UI work (plan-mode entry, written plan file, then implementation). Confidence: 0.8
+- Likes the agent to verify with a smoke test (build + render check + curl HTTP status) before declaring done. Confidence: 0.75
+- Prefers to install JS dependencies via npm into `node_modules` (not CDN) and bundle through Vite. Confidence: 0.85
+- Prefers page-scoped scripts loaded via `@vite([...])` in a `@push('scripts')` slot rather than global app.js. Confidence: 0.8
+- Speaks in casual, abbreviated English ("improve landing page at front I want to use parallax effect with Lenis for some beautiful UI UX effect modern web", "redesign the landing page front UI UX") — agent should still produce polished output but can match the casual register when summarizing. Confidence: 0.85
+- When using dynamic color keys in Blade (e.g. iterating over a list of `['color' => 'indigo', ...]`), never rely on string-interpolated Tailwind classes like `bg-{{ $f['color'] }}-100` — Tailwind v4's JIT scanner can't see them. Use a static `$colorMap` lookup (or `match` expression) with fully-written class names instead. Confidence: 0.95
+- Define shared Alpine.js state (e.g. `darkMode`) in the layout, not in individual pages, so any page can rely on it being present. Initialize from `localStorage` in `x-data`, and add a tiny pre-paint `<script>` that adds the `dark` class to `<html>` to avoid a flash. Confidence: 0.9
+- For chat-style UI work, prefers reference-grade ChatGPT-style layouts (full-width thread, collapsible left rail, centered max-width column, floating composer) over conservative 2-pane layouts. Wants the full extras set (prompt suggestions, stop/regenerate buttons, markdown rendering, session search + inline rename) rather than picking one or two. Willing to add server endpoints (PATCH rename, regenerate flag, abort-capable streaming) to power polished UX. Confidence: 0.8
+- Prefers a minimal vanilla-JS implementation over pulling in an npm dep for small utilities (e.g. markdown rendering, copy-to-clipboard) — keep `node_modules` lean when the feature is small enough to write by hand. Confidence: 0.75

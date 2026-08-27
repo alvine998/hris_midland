@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(ls:*)",
+      "Shell(node --version)",
+      "Shell(npm:*)",
+      "Shell(php artisan view:clear 2 >& 1)",
+      "Shell(php artisan serve --host=127.0.0.1 --port=8765 2 >& 1)",
+      "Shell(sleep:*)",
+      "Shell(head:*)",
+      "Shell(./vendor/bin/pint:*)",
+      "Shell(curl -sS -o /dev/null -w HTTP %{http_code}\\n http://127.0.0.1:8765/)",
+      "Shell(curl -sS http://127.0.0.1:8765/)",
+      "Shell(lsof -iTCP:8765 -sTCP:LISTEN 2>/dev/null; lsof -iTCP:8766 -sTCP:LISTEN 2>/dev/null; lsof -iTCP:8767 -sTCP:LISTEN 2>/dev/null; lsof -iTCP:8768 -sTCP:LISTEN 2>/dev/null; lsof -iTCP:8769 -sTCP:LISTEN 2>/dev/null)",
+      "Shell(curl -sS -o /dev/null -w \"HTTP %{http_code} in %{time_total}s\\n\" --max-time 10 https://alvineitsolutions.com/api/router-customers/chat/completions -X POST -H \"Content-Type: application/json\" -H \"Authorization: Bearer test\" -d '{\"model\":\"auto\",\"messages\":[{\"role\":\"user\",\"content\":\"hi\"}]}')",
+      "Shell(php -r \"echo 'max_execution_time: ', ini_get('max_execution_time'), \\\"\\n\\\";\")",
+      "Shell(php -l app/Services/Ai/AlvineAiRouterClient.php)",
+      "Shell(php -l app/Http/Controllers/AiChatController.php)",
+      "Shell(git:*)",
+      "Shell(php artisan test --filter=AiChatTest 2 >& 1)",
+      "Shell(php -l app/Services/AiChatService.php)",
+      "Shell(php -l app/Http/Requests/StoreAiChatMessageRequest.php)",
+      "Shell(php -l routes/web.php)",
+      "Shell(php artisan optimize:clear 2 >& 1)",
+      "Shell(php artisan route:list --name=ai-chat 2 >& 1)",
+      "Shell(php -r require 'vendor/autoload.php'; $app = require 'bootstrap/app.php'; $app->make(Illuminate\\Contracts\\Console\\Kernel::class)->bootstrap(); view()->addLocation(resource_path('views')); 2 >& 1)",
+      "Shell(php -r echo view()->exists('ai-chat.index') ? 'view exists' : 'MISSING'; 2 >& 1)",
+      "Shell(php artisan view:cache 2 >& 1)"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}

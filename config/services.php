@@ -48,6 +48,20 @@ return [
         'max_tokens' => env('BIGMODEL_MAX_TOKENS', 1024),
     ],
 
+    'alvine_ai_router' => [
+        'base_url' => env('ALVINE_AI_ROUTER_URL', 'https://api.xiaomimimo.com/v1'),
+        'api_key' => env('ALVINE_AI_ROUTER_KEY'),
+        'model' => env('ALVINE_AI_ROUTER_MODEL', 'mimo-v2.5'),
+        'temperature' => env('ALVINE_AI_ROUTER_TEMPERATURE', 0.4),
+        'max_tokens' => env('ALVINE_AI_ROUTER_MAX_TOKENS', 1024),
+        'timeout' => env('ALVINE_AI_ROUTER_TIMEOUT', 120),
+        // Number of most-recent messages kept verbatim as short-term memory.
+        'memory_window' => env('AI_CHAT_MEMORY_WINDOW', 20),
+        // Summarize overflow into long-term memory once this many messages
+        // have accumulated outside the window (batches the extra API call).
+        'consolidation_batch' => env('AI_CHAT_CONSOLIDATION_BATCH', 10),
+    ],
+
     'whatsapp_ai' => [
         'session_ttl_minutes' => env('WHATSAPP_AI_SESSION_TTL', 30),
         'max_history_messages' => env('WHATSAPP_AI_MAX_HISTORY', 10),
