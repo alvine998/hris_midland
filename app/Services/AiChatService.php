@@ -12,7 +12,10 @@ use Illuminate\Support\Str;
 
 class AiChatService
 {
-    public function __construct(protected AlvineAiRouterClient $client) {}
+    public function __construct(
+        protected AlvineAiRouterClient $client,
+        protected KnowledgeBaseService $knowledge,
+    ) {}
 
     public function createSession(User $user, string $model = 'auto'): AiChatSession
     {
@@ -107,6 +110,16 @@ class AiChatService
 
         $messages = [['role' => 'system', 'content' => $this->systemPrompt($session)]];
 
+        // RAG: inject relevant knowledge base context based on latest user message
+        $latestUserMessage = $session->messages()->where('role', 'user')->latest('id')->first();
+        if ($latestUserMessage) {
+            $searchTerm = $this->knowledge->toSearchTerm($latestUserMessage->content);
+            $kbContext = $this->knowledge->buildContext($searchTerm);
+            if (filled($kbContext)) {
+                $messages[] = ['role' => 'system', 'content' => $kbContext];
+            }
+        }
+
         if (filled($session->memory)) {
             $messages[] = [
                 'role' => 'system',
@@ -190,6 +203,8 @@ class AiChatService
             'You are Midland AI, a helpful HR assistant embedded in an HRIS application.',
             "You are chatting with {$userName}. Be concise, professional and friendly.",
             'Use the conversation memory when provided to stay consistent with earlier parts of the conversation.',
+            'You have access to the company HR knowledge base. When relevant context is provided, use it to answer questions about HR policies, leave rules, attendance, payroll, and company procedures.',
+            'If the knowledge base does not contain relevant information, say so honestly rather than making up answers.',
         ]);
     }
 }

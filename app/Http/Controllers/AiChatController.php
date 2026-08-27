@@ -15,7 +15,14 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AiChatController extends Controller
 {
-    public function __construct(protected AiChatService $service) {}
+    public function __construct(protected AiChatService $service)
+    {
+        $this->middleware(function ($request, $next) {
+            abort_unless(Auth::user()?->isAdmin(), 403, 'AI Assistant is restricted to Super Admin.');
+
+            return $next($request);
+        });
+    }
 
     public function index(): View
     {

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminCrudController;
 use App\Http\Controllers\AiChatController;
+use App\Http\Controllers\AiChatKnowledgeController;
 use App\Http\Controllers\ApprovalWorkflowController;
 use App\Http\Controllers\AttendanceCheckInController;
 use App\Http\Controllers\AttendanceController;
@@ -149,6 +150,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/ai-chat/sessions/{session}', [AiChatController::class, 'updateSession'])->name('ai-chat.sessions.update');
     Route::delete('/ai-chat/sessions/{session}/last-assistant', [AiChatController::class, 'destroyLastAssistant'])->name('ai-chat.sessions.last-assistant.destroy');
     Route::delete('/ai-chat/sessions/{session}', [AiChatController::class, 'destroySession'])->name('ai-chat.sessions.destroy');
+
+    Route::get('/ai-chat/knowledge', [AiChatKnowledgeController::class, 'index'])->name('ai-chat.knowledge.index');
+    Route::post('/ai-chat/knowledge', [AiChatKnowledgeController::class, 'store'])->name('ai-chat.knowledge.store');
+    Route::put('/ai-chat/knowledge/{article}', [AiChatKnowledgeController::class, 'update'])->name('ai-chat.knowledge.update');
+    Route::delete('/ai-chat/knowledge/{article}', [AiChatKnowledgeController::class, 'destroy'])->name('ai-chat.knowledge.destroy');
 
     Route::middleware('permission:*')->group(function () {
         Route::get('/user-roles', [UserRoleController::class, 'index'])->name('user-roles.index');
