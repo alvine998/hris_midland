@@ -25,7 +25,8 @@
       "Shell(php artisan route:list --name=ai-chat 2 >& 1)",
       "Shell(php -r require 'vendor/autoload.php'; $app = require 'bootstrap/app.php'; $app->make(Illuminate\\Contracts\\Console\\Kernel::class)->bootstrap(); view()->addLocation(resource_path('views')); 2 >& 1)",
       "Shell(php -r echo view()->exists('ai-chat.index') ? 'view exists' : 'MISSING'; 2 >& 1)",
-      "Shell(php artisan view:cache 2 >& 1)"
+      "Shell(php artisan view:cache 2 >& 1)",
+      "Shell(php -r \"require 'vendor/autoload.php'; echo class_exists('Faker\\\\Factory') ? 'YES' : 'NO';\")"
     ],
     "deny": [],
     "defaultMode": "default"
