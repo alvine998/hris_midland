@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\AiChatMessage;
 use App\Models\AiChatSession;
+use App\Models\Role;
 use App\Models\User;
+use App\Models\UserRole;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -21,6 +23,9 @@ class AiChatTest extends TestCase
 
         config()->set('services.alvine_ai_router.api_key', 'sk-test-key');
         $this->user = User::factory()->create();
+        $role = Role::create(['name' => 'Super Admin', 'description' => 'Full system access', 'rbac' => ['*']]);
+        UserRole::create(['user_id' => $this->user->id, 'role_id' => $role->id]);
+        $this->user->load('userRoles.role');
     }
 
     public function test_guests_cannot_access_ai_chat(): void

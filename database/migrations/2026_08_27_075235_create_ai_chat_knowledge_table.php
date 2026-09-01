@@ -16,10 +16,15 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 
-            $table->fullText(['title', 'content']);
             $table->index('category');
             $table->index('is_active');
         });
+
+        if (Schema::getConnection()->getDriverName() !== 'sqlite') {
+            Schema::table('ai_chat_knowledge', function (Blueprint $table) {
+                $table->fullText(['title', 'content']);
+            });
+        }
     }
 
     public function down(): void

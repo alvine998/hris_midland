@@ -6,22 +6,28 @@ use App\Http\Requests\StoreAiChatMessageRequest;
 use App\Models\AiChatMessage;
 use App\Models\AiChatSession;
 use App\Services\AiChatService;
+use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class AiChatController extends Controller
+class AiChatController extends Controller implements HasMiddleware
 {
-    public function __construct(protected AiChatService $service)
-    {
-        $this->middleware(function ($request, $next) {
-            abort_unless(Auth::user()?->isAdmin(), 403, 'AI Assistant is restricted to Super Admin.');
+    public function __construct(protected AiChatService $service) {}
 
-            return $next($request);
-        });
+    public static function middleware(): array
+    {
+        return [
+            function (Request $request, Closure $next) {
+                abort_unless(Auth::user()?->isAdmin(), 403, 'AI Assistant is restricted to Super Admin.');
+
+                return $next($request);
+            },
+        ];
     }
 
     public function index(): View
