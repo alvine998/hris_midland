@@ -3,13 +3,13 @@
 @section('title', 'Survey Customer')
 
 @section('content')
-<div x-data="{ open: false, edit: false, item: {}, deleteId: null }" class="space-y-6">
+<div x-data="{ open: false, edit: false, item: {}, deleteId: null, isFromLead: false }" class="space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Survey Customer</h2>
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Track customer surveys and interest after lead follow-up.</p>
         </div>
-        <button type="button" @click="open = true; edit = false; item = {status: 'scheduled', interest_level: 'medium'}" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Add Survey</button>
+        <button type="button" @click="open = true; edit = false; item = {status: 'scheduled', interest_level: 'medium'}; isFromLead = false" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Add Survey</button>
     </div>
 
     @session('success')
@@ -65,7 +65,7 @@
                         <td class="px-6 py-4"><span class="rounded-full px-2 py-0.5 text-xs font-semibold capitalize {{ $survey->interest_level==='high' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : ($survey->interest_level==='low' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300') }}">{{ $survey->interest_level ?? '-' }}</span></td>
                         <td class="px-6 py-4"><span class="rounded-full px-2 py-0.5 text-xs font-semibold capitalize bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">{{ $survey->status }}</span></td>
                         <td class="px-6 py-4 text-right">
-                            <button type="button" @click="open = true; edit = true; item = @js(['id'=>$survey->id,'lead_id'=>$survey->lead_id,'project_id'=>$survey->project_id,'project_stock_id'=>$survey->project_stock_id,'customer_name'=>$survey->customer_name,'customer_phone'=>$survey->customer_phone,'customer_email'=>$survey->customer_email,'survey_date'=>$survey->survey_date?->format('Y-m-d'),'surveyor_id'=>$survey->surveyor_id,'rating'=>$survey->rating,'interest_level'=>$survey->interest_level,'feedback'=>$survey->feedback,'next_action'=>$survey->next_action,'status'=>$survey->status])" class="mr-2 font-medium text-indigo-600 dark:text-indigo-400">Edit</button>
+                            <button type="button" @click="open = true; edit = true; item = @js(['id'=>$survey->id,'lead_id'=>$survey->lead_id,'project_id'=>$survey->project_id,'project_stock_id'=>$survey->project_stock_id,'customer_name'=>$survey->customer_name,'customer_phone'=>$survey->customer_phone,'customer_email'=>$survey->customer_email,'survey_date'=>$survey->survey_date?->format('Y-m-d'),'surveyor_id'=>$survey->surveyor_id,'rating'=>$survey->rating,'interest_level'=>$survey->interest_level,'feedback'=>$survey->feedback,'next_action'=>$survey->next_action,'status'=>$survey->status]); isFromLead = !!item.lead_id" class="mr-2 font-medium text-indigo-600 dark:text-indigo-400">Edit</button>
                             <button type="button" @click="deleteId = {{ $survey->id }}" class="font-medium text-red-600 dark:text-red-400">Delete</button>
                         </td>
                     </tr>
@@ -88,25 +88,42 @@
                 @csrf
                 <input type="hidden" name="_method" :value="edit ? 'PUT' : 'POST'">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <label class="md:col-span-2">
-                        <span class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Customer Name *</span>
-                        <input type="text" name="customer_name" x-model="item.customer_name" required class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                    <label class="md:col-span-2 flex items-center gap-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 px-4 py-3 cursor-pointer">
+                        <input type="checkbox" x-model="isFromLead" @change="if (isFromLead) { item.customer_name=''; item.customer_phone=''; item.customer_email=''; } else { item.lead_id=''; }" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Is customer from Leads?</span>
+                        <span class="ml-auto text-xs text-gray-500 dark:text-gray-400" x-text="isFromLead ? 'Select existing lead' : 'Input manual customer'"></span>
+                        <input type="hidden" name="is_from_lead" :value="isFromLead ? 1 : 0">
                     </label>
-                    <label>
-                        <span class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Phone</span>
-                        <input type="text" name="customer_phone" x-model="item.customer_phone" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                    </label>
-                    <label>
-                        <span class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Email</span>
-                        <input type="email" name="customer_email" x-model="item.customer_email" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                    </label>
-                    <label>
-                        <span class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Lead</span>
-                        <select name="lead_id" x-model="item.lead_id" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                            <option value="">Select lead (optional)</option>
-                            @foreach($leads as $lead)<option value="{{ $lead->id }}">{{ $lead->name }}</option>@endforeach
-                        </select>
-                    </label>
+
+                    <template x-if="isFromLead">
+                        <div class="md:col-span-2">
+                            <label class="block">
+                                <span class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Select Customer (Leads) *</span>
+                                <select name="lead_id" x-model="item.lead_id" required class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                                    <option value="">Select lead</option>
+                                    @foreach($leads as $lead)<option value="{{ $lead->id }}">{{ $lead->name }}@if($lead->phone) — {{ $lead->phone }}@endif @if($lead->email) ({{ $lead->email }})@endif</option>@endforeach
+                                </select>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Customer name, phone and email will be auto-filled from the selected lead.</p>
+                            </label>
+                        </div>
+                    </template>
+
+                    <template x-if="!isFromLead">
+                        <div class="contents">
+                            <label class="md:col-span-2">
+                                <span class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Customer Name *</span>
+                                <input type="text" name="customer_name" x-model="item.customer_name" required class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            </label>
+                            <label>
+                                <span class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Phone</span>
+                                <input type="text" name="customer_phone" x-model="item.customer_phone" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            </label>
+                            <label>
+                                <span class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Email</span>
+                                <input type="email" name="customer_email" x-model="item.customer_email" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            </label>
+                        </div>
+                    </template>
                     <label>
                         <span class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Project</span>
                         <select name="project_id" x-model="item.project_id" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white">

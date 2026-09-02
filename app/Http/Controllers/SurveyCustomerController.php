@@ -34,7 +34,7 @@ class SurveyCustomerController extends Controller
 
         return view('marketing-sales.survey-customers.index', [
             'surveys' => $surveys,
-            'leads' => Lead::orderBy('name')->get(['id', 'name']),
+            'leads' => Lead::orderBy('name')->get(['id', 'name', 'phone', 'email', 'project_id']),
             'projects' => Project::orderBy('name')->get(['id', 'name']),
             'projectStocks' => ProjectStock::orderBy('unit_code')->get(['id', 'unit_code', 'project_id']),
             'employees' => Employee::orderBy('name')->get(['id', 'name']),
@@ -75,11 +75,14 @@ class SurveyCustomerController extends Controller
 
     private function validated(Request $request): array
     {
-        return $request->validate([
-            'lead_id' => ['nullable', 'exists:leads,id'],
+        $isFromLead = $request->boolean('is_from_lead');
+
+        $data = $request->validate([
+            'is_from_lead' => ['nullable', 'boolean'],
+            'lead_id' => [$isFromLead ? 'required' : 'nullable', 'exists:leads,id'],
             'project_id' => ['nullable', 'exists:projects,id'],
             'project_stock_id' => ['nullable', 'exists:project_stocks,id'],
-            'customer_name' => ['required', 'string', 'max:255'],
+            'customer_name' => [$isFromLead ? 'nullable' : 'required', 'string', 'max:255'],
             'customer_phone' => ['nullable', 'string', 'max:50'],
             'customer_email' => ['nullable', 'email', 'max:255'],
             'survey_date' => ['nullable', 'date'],
@@ -90,5 +93,21 @@ class SurveyCustomerController extends Controller
             'next_action' => ['nullable', 'string', 'max:255'],
             'status' => ['required', 'in:scheduled,completed,cancelled'],
         ]);
+
+        unset($data['is_from_lead']);
+
+        if ($isFromLead && ! empty($data['lead_id'])) {
+            $lead = Lead::find($data['lead_id']);
+            if ($lead) {
+                $data['customer_name'] = ($data['customer_name'] ?? null) ?: $lead->name;
+                $data['customer_phone'] = ($data['customer_phone'] ?? null) ?: $lead->phone;
+                $data['customer_email'] = ($data['customer_email'] ?? null) ?: $lead->email;
+                $data['project_id'] = ($data['project_id'] ?? null) ?: $lead->project_id;
+            }
+        } else {
+            $data['lead_id'] = null;
+        }
+
+        return $data;
     }
 }
