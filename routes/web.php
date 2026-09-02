@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OtpVerificationController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ClosingCustomerController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
@@ -24,18 +25,23 @@ use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\Feedback360Controller;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\LeadController;
 use App\Http\Controllers\LeaveApprovalController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\LeaveSettingsController;
 use App\Http\Controllers\LeaveTypeController;
+use App\Http\Controllers\MarketingSalesController;
+use App\Http\Controllers\OperationConstructionController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\PerformanceReportController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectStockController;
 use App\Http\Controllers\ReferenceController;
 use App\Http\Controllers\RelationshipController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\SuperAdminOverviewController;
+use App\Http\Controllers\SurveyCustomerController;
 use App\Http\Controllers\UserRoleController;
 use App\Http\Controllers\WhatsAppWebhookController;
 use App\Http\Controllers\WorkHistoryController;
@@ -281,4 +287,40 @@ Route::middleware('auth')->group(function () {
     Route::delete('/master-data/approval-workflows/{approvalWorkflow}', [ApprovalWorkflowController::class, 'destroy'])->name('master-data.approval-workflows.destroy');
 
     Route::get('/performance/report', [PerformanceReportController::class, 'index'])->name('performance.report');
+
+    // Operation and Construction
+    Route::prefix('operation-construction')->name('operation-construction.')->group(function () {
+        Route::get('/overview', [OperationConstructionController::class, 'overview'])->name('overview');
+        Route::get('/projects', [OperationConstructionController::class, 'projects'])->name('projects.index');
+        Route::post('/projects', [OperationConstructionController::class, 'storeProject'])->name('projects.store');
+        Route::get('/projects/{project}', [OperationConstructionController::class, 'projectShow'])->name('projects.show');
+        Route::put('/projects/{project}', [OperationConstructionController::class, 'updateProject'])->name('projects.update');
+        Route::delete('/projects/{project}', [OperationConstructionController::class, 'destroyProject'])->name('projects.destroy');
+    });
+
+    // Marketing and Sales
+    Route::prefix('marketing-sales')->name('marketing-sales.')->group(function () {
+        Route::get('/sales-performance', [MarketingSalesController::class, 'salesPerformance'])->name('sales-performance');
+        Route::get('/marketing-performance', [MarketingSalesController::class, 'marketingPerformance'])->name('marketing-performance');
+
+        Route::get('/leads', [LeadController::class, 'index'])->name('leads.index');
+        Route::post('/leads', [LeadController::class, 'store'])->name('leads.store');
+        Route::put('/leads/{lead}', [LeadController::class, 'update'])->name('leads.update');
+        Route::delete('/leads/{lead}', [LeadController::class, 'destroy'])->name('leads.destroy');
+
+        Route::get('/survey-customers', [SurveyCustomerController::class, 'index'])->name('survey-customers.index');
+        Route::post('/survey-customers', [SurveyCustomerController::class, 'store'])->name('survey-customers.store');
+        Route::put('/survey-customers/{surveyCustomer}', [SurveyCustomerController::class, 'update'])->name('survey-customers.update');
+        Route::delete('/survey-customers/{surveyCustomer}', [SurveyCustomerController::class, 'destroy'])->name('survey-customers.destroy');
+
+        Route::get('/closing-customers', [ClosingCustomerController::class, 'index'])->name('closing-customers.index');
+        Route::post('/closing-customers', [ClosingCustomerController::class, 'store'])->name('closing-customers.store');
+        Route::put('/closing-customers/{closingCustomer}', [ClosingCustomerController::class, 'update'])->name('closing-customers.update');
+        Route::delete('/closing-customers/{closingCustomer}', [ClosingCustomerController::class, 'destroy'])->name('closing-customers.destroy');
+
+        Route::get('/project-stocks', [ProjectStockController::class, 'index'])->name('project-stocks.index');
+        Route::post('/project-stocks', [ProjectStockController::class, 'store'])->name('project-stocks.store');
+        Route::put('/project-stocks/{projectStock}', [ProjectStockController::class, 'update'])->name('project-stocks.update');
+        Route::delete('/project-stocks/{projectStock}', [ProjectStockController::class, 'destroy'])->name('project-stocks.destroy');
+    });
 });
