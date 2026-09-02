@@ -177,6 +177,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
 
     Route::get('/employee-tasks', [EmployeeTaskController::class, 'index'])->name('employee-tasks.index');
+    Route::get('/employee-tasks/timeline', [EmployeeTaskController::class, 'timeline'])->name('employee-tasks.timeline');
     Route::get('/employee-tasks/create', [EmployeeTaskController::class, 'create'])->name('employee-tasks.create');
     Route::post('/employee-tasks', [EmployeeTaskController::class, 'store'])->name('employee-tasks.store');
     Route::get('/employee-tasks/{employeeTask}/edit', [EmployeeTaskController::class, 'edit'])->name('employee-tasks.edit');

@@ -8,6 +8,7 @@ use App\Models\Employee;
 use App\Models\EmployeeTask;
 use App\Services\EmployeeTaskService;
 use App\Services\ListSearchService;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -57,6 +58,57 @@ class EmployeeTaskController extends Controller
 
         return view('employee-tasks.index', [
             'tasks' => $tasks,
+            'employees' => $canAssign ? Employee::orderBy('name')->get() : collect(),
+            'canAssign' => $canAssign,
+        ]);
+    }
+
+    public function timeline(Request $request): View
+    {
+        $user = $request->user();
+        $canAssign = $this->canAssign($user);
+
+        $year = (int) $request->query('year', now()->year);
+        $month = (int) $request->query('month', now()->month);
+
+        if ($month < 1 || $month > 12) {
+            $month = now()->month;
+        }
+
+        $startOfMonth = now()->create($year, $month, 1)->startOfMonth();
+        $endOfMonth = $startOfMonth->copy()->endOfMonth();
+
+        $tasks = EmployeeTask::query()
+            ->with(['employee.department'])
+            ->when(! $canAssign, fn ($query) => $query->where('employee_id', $user->employee_id ?? 0))
+            ->when($canAssign && filled($request->query('employee_id')), fn ($query) => $query->where('employee_id', $request->query('employee_id')))
+            ->where(function ($query) use ($startOfMonth, $endOfMonth): void {
+                $query->whereBetween('period_start', [$startOfMonth, $endOfMonth])
+                    ->orWhereBetween('period_end', [$startOfMonth, $endOfMonth])
+                    ->orWhere(function ($query) use ($startOfMonth, $endOfMonth): void {
+                        $query->where('period_start', '<=', $startOfMonth)
+                            ->where('period_end', '>=', $endOfMonth);
+                    });
+            })
+            ->orderBy('period_start')
+            ->get();
+
+        $calendarDays = [];
+        $currentDate = $startOfMonth->copy()->startOfWeek(Carbon::SUNDAY);
+        $endDate = $endOfMonth->copy()->endOfWeek(Carbon::SATURDAY);
+
+        while ($currentDate->lte($endDate)) {
+            $calendarDays[] = $currentDate->copy();
+            $currentDate->addDay();
+        }
+
+        return view('employee-tasks.timeline', [
+            'tasks' => $tasks,
+            'calendarDays' => $calendarDays,
+            'startOfMonth' => $startOfMonth,
+            'endOfMonth' => $endOfMonth,
+            'year' => $year,
+            'month' => $month,
             'employees' => $canAssign ? Employee::orderBy('name')->get() : collect(),
             'canAssign' => $canAssign,
         ]);

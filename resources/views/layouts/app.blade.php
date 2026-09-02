@@ -150,10 +150,15 @@
                         <div x-show="sidebarCollapsed" x-cloak class="absolute left-full ml-2 px-2 py-1 rounded-lg bg-gray-900 dark:bg-gray-700 text-white text-xs font-medium whitespace-nowrap opacity-0 group-hover/item:opacity-100 pointer-events-none transition-opacity z-50">Tasks</div>
                     </button>
                     <div x-cloak x-show="open" x-collapse>
-                        <a href="{{ route('employee-tasks.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors relative group/item {{ $isActive('employee-tasks.*') ? "$activeNested $activeNestedHover" : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100' }}" :class="{ 'justify-center px-0': sidebarCollapsed }">
+                        <a href="{{ route('employee-tasks.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors relative group/item {{ $isActive('employee-tasks.index') ? "$activeNested $activeNestedHover" : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100' }}" :class="{ 'justify-center px-0': sidebarCollapsed }">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 8l2 2 4-4"/></svg>
                             <span x-show="!sidebarCollapsed">Employee Tasks</span>
                             <div x-show="sidebarCollapsed" x-cloak class="absolute left-full ml-2 px-2 py-1 rounded-lg bg-gray-900 dark:bg-gray-700 text-white text-xs font-medium whitespace-nowrap opacity-0 group-hover/item:opacity-100 pointer-events-none transition-opacity z-50">Employee Tasks</div>
+                        </a>
+                        <a href="{{ route('employee-tasks.timeline') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors relative group/item {{ $isActive('employee-tasks.timeline') ? "$activeNested $activeNestedHover" : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100' }}" :class="{ 'justify-center px-0': sidebarCollapsed }">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7H5v12z"/></svg>
+                            <span x-show="!sidebarCollapsed">Timeline</span>
+                            <div x-show="sidebarCollapsed" x-cloak class="absolute left-full ml-2 px-2 py-1 rounded-lg bg-gray-900 dark:bg-gray-700 text-white text-xs font-medium whitespace-nowrap opacity-0 group-hover/item:opacity-100 pointer-events-none transition-opacity z-50">Timeline</div>
                         </a>
                     </div>
                 </div>
